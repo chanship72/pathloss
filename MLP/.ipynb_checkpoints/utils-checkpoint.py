@@ -121,6 +121,22 @@ def predict_value(model, X):
 
     return y_hat
 
+def describeData(Xtrain, Ytrain, Xval, Yval, Xtest, Ytest, label='Test'):
+    pd.options.display.max_rows = 999
+    dic = {
+           '1.X_train':pd.Series(Xtrain.flatten()), 
+           '2.y_train':pd.Series(Ytrain.flatten()), 
+           '3.X_val':pd.Series(Xval.flatten()),
+           '4.y_val':pd.Series(Yval.flatten()),
+           '5.X_test':pd.Series(Xtest.flatten()),
+           '6.y_test':pd.Series(Ytest.flatten()),
+          }
+    df_bh_34 = pd.DataFrame(dic)
+    print(label)
+    print("------------------------------------------------------------------------")
+    print(df_bh_34.describe())
+    print()
+
 class DataSplit:
     def __init__(self, X, Y):
         self.X = X

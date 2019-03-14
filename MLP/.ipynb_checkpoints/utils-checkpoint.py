@@ -120,7 +120,7 @@ def predict_value(model, X):
     y_hat = model['L2'].forward(d1)
 
     return y_hat
-    
+
 class DataSplit:
     def __init__(self, X, Y):
         self.X = X

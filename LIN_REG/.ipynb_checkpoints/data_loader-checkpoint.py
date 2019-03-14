@@ -42,5 +42,7 @@ def data_loader_pathloss(dataset):
 
 X_train, y_train, X_val, y_val, X_test, y_test = data_loader_pathloss('PLdata.mat')
 
-
+print(stats.describe(X_train))
+print(stats.describe(X_val))
+print(stats.describe(X_test))
 

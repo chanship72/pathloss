@@ -81,7 +81,8 @@ def data_loader_pathloss(dataset):
     p = mat_contents[:,1]
     # print(d,p)
 
-    X = np.log10(d)
+#     X = np.log10(d)
+    X = d
     Y = p
 
     # X = X.reshape((X.shape[0], 1))
@@ -104,38 +105,21 @@ def data_loader_pathloss(dataset):
 
     return X_train.reshape(-1, 1), y_train, X_val.reshape(-1, 1), y_val, X_test.reshape(-1, 1), y_test
 
-def data_pathloss_with_freq(dataset, freq)
+def data_loader_pathloss_with_freq(dataset, freq):
     mat_contents = np.array(sio.loadmat(dataset)['temp1'])
     # print(mat_contents.shape)
 
-    d = mat_contents[:,0]
+    d = mat_contents[:,0].reshape(-1, 1)
     p = mat_contents[:,1]
-    f = np.array([freq]*len(d[0]))
-    print(f.shape)
-    # print(d,p)
+    f = np.array([freq]*len(d)).reshape(-1, 1)
 
-    X = [np.log10(d),f.T]
+    X = np.concatenate((np.log10(d),f),axis=1)
     Y = p
-    print(X)
-    # X = X.reshape((X.shape[0], 1))
 
     X_train, X_val, y_train, y_val = train_test_split(X,Y,test_size=0.2, shuffle=True)
     X_val, X_test, y_val, y_test = train_test_split(X_val,y_val,test_size=0.5, shuffle=True)
 
-    df_train = pd.DataFrame({'X_train':X_train, 'y_train':y_train}).sort_values(by=['X_train'])
-    df_val = pd.DataFrame({'X_val':X_val, 'y_val':y_val}).sort_values(by=['X_val'])
-    df_test = pd.DataFrame({'X_test':X_test, 'y_test':y_test}).sort_values(by=['X_test'])
-
-    X_train = np.array(df_train['X_train'])
-    y_train = np.array(df_train['y_train'])
-
-    X_val = np.array(df_val['X_val'])
-    y_val = np.array(df_val['y_val'])
-
-    X_test = np.array(df_test['X_test'])
-    y_test = np.array(df_test['y_test'])
-
-    return X_train.reshape(-1, 1), y_train, X_val.reshape(-1, 1), y_val, X_test.reshape(-1, 1), y_test
+    return X_train, y_train, X_val, y_val, X_test, y_test
 
 def predict_label(f):
     # This is a function to determine the predicted label given scores

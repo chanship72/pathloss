@@ -5,7 +5,7 @@ import json
 from random import random
 
 from MLP.utils import data_loader_pathloss
-
+from matplotlib.lines import Line2D
 from sklearn.neural_network import MLPRegressor
 
 def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.01, learning_init=0.01):
@@ -56,10 +56,29 @@ def mlp_train_graph(model, X, Y, activation, loss, rmse):
     plt.scatter(X, Y)
     plt.plot(np.array(X), np.array(mlp_prediction(model, X)), color="red")
     plt.xlabel("log distance (m)")
-    plt.ylabel("pathloss (dB)")
+    plt.ylabel("Path Loss (dB)")
     plt.title("Trained Model based(" + activation + ", " + loss + ") RMSE:" + str(rmse))
     plt.show()
 
+def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, activation, loss):
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(8)
+    fig.set_figheight(6)
+    cmap_i = 0.0
+    ax.set_xscale('log')
+    plt.scatter(Xscatter, Yscatter, s=1)        
+    for idx in range(len(X)):
+        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))        
+        cmap_i += 0.8
+    ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
+    plt.ylabel("pathloss (dB)")
+    plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
+    plt.show()
+#     fig, ax = plt.subplots()
+#     lines = ax.plot(X[:,0])
+#     ax.legend(custom_lines, ['3.4Ghz', '5.3Ghz', '6.4Ghz'])
+    
 def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, activation, loss):
     # Xtrain, Ytrain, Xval, Yval, Xtest, Ytest = data_loader_pathloss("PLdata.mat")
 

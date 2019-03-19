@@ -56,7 +56,7 @@ def mlp_train_graph(model, X, Y, activation, loss, rmse):
     plt.scatter(X, Y)
     plt.plot(np.array(X), np.array(mlp_prediction(model, X)), color="red")
     plt.xlabel("log distance (m)")
-    plt.ylabel("Path Loss (dB)")
+    plt.ylabel("Path Loss(dB)")
     plt.title("Trained Model based(" + activation + ", " + loss + ") RMSE:" + str(rmse))
     plt.show()
 
@@ -66,18 +66,16 @@ def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, activation, loss):
     fig.set_figwidth(8)
     fig.set_figheight(6)
     cmap_i = 0.0
-    ax.set_xscale('log')
+#     ax.set_xscale('log')
     plt.scatter(Xscatter, Yscatter, s=1)        
     for idx in range(len(X)):
         plt.plot(X[idx], pred[idx], color=cmap(cmap_i))        
         cmap_i += 0.8
-    ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
-    plt.ylabel("pathloss (dB)")
+#     ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
+    plt.xlabel("Distance(m) - log(x)")
+    plt.ylabel("Path Loss(dB)")
     plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
     plt.show()
-#     fig, ax = plt.subplots()
-#     lines = ax.plot(X[:,0])
-#     ax.legend(custom_lines, ['3.4Ghz', '5.3Ghz', '6.4Ghz'])
     
 def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, activation, loss):
     # Xtrain, Ytrain, Xval, Yval, Xtest, Ytest = data_loader_pathloss("PLdata.mat")
@@ -94,7 +92,7 @@ def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, act
         for h_layer in range(1, max_layers):
             hidden_layer = (max_unit,) * h_layer
             model = mlp_regression(Xtrain, Ytrain, hidden_layer, activation, loss)
-            rmse = mlp_prediction_error(model, Xval, Yval)
+            rmse = mlp_prediction_error(model, Xtrain, Ytrain)
 
             layerList.append(h_layer)
             rmseList.append(rmse)
@@ -103,9 +101,9 @@ def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, act
 
     elif mode == 'hu':
         for unit in range(1,max_unit):
-            hidden_layer = (unit,5) * max_layers
+            hidden_layer = (unit) * max_layers
             model = mlp_regression(Xtrain, Ytrain, hidden_layer, activation, loss)
-            rmse = mlp_prediction_error(model, Xval, Yval)
+            rmse = mlp_prediction_error(model, Xtrain, Ytrain)
 
             unitList.append(unit)
             rmseList.append(rmse)

@@ -81,8 +81,8 @@ def data_loader_pathloss(dataset):
     p = mat_contents[:,1]
     # print(d,p)
 
-#     X = np.log10(d)
-    X = d
+    X = np.log10(d)
+#     X = d
     Y = p
 
     # X = X.reshape((X.shape[0], 1))

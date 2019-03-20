@@ -26,6 +26,23 @@ def linear_regression_multi_graph(X, Y, pred, Xscatter, Yscatter):
     plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
     plt.show()
 
+def linear_regression_multi_graph_comb(model, X, Xscatter, Yscatter):
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(8)
+    fig.set_figheight(6)
+    cmap_i = 0.0
+#     ax.set_xscale('log')
+    plt.scatter(Xscatter, Yscatter, s=1)        
+    for idx in range(len(X)):
+        plt.plot(X[idx][:,0], model.predict(X[idx]), color=cmap(cmap_i))        
+        cmap_i += 0.8
+#     ax.set_xlabel("Distance(m) - log(x)", fontsize=12)
+    plt.xlabel("Distance(m) - log(x)")
+    plt.ylabel("Path Loss(dB)")
+    plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
+    plt.show()    
+    
 def lin_prediction_error(model, X, Y):
     X_predictions = model.predict(X)
     rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))

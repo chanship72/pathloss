@@ -109,15 +109,34 @@ def data_loader_pathloss_with_freq(dataset, freq):
     mat_contents = np.array(sio.loadmat(dataset)['temp1'])
     # print(mat_contents.shape)
 
-    d = mat_contents[:,0].reshape(-1, 1)
+    d = mat_contents[:,0]
     p = mat_contents[:,1]
-    f = np.array([freq]*len(d)).reshape(-1, 1)
 
-    X = np.concatenate((np.log10(d),f),axis=1)
+    #X = np.concatenate((np.log10(d),f),axis=1)
+    X = np.log10(d)
     Y = p
 
     X_train, X_val, y_train, y_val = train_test_split(X,Y,test_size=0.2, shuffle=True)
     X_val, X_test, y_val, y_test = train_test_split(X_val,y_val,test_size=0.5, shuffle=True)
+
+    df_train = pd.DataFrame({'X_train':X_train, 'y_train':y_train}).sort_values(by=['X_train'])
+    df_val = pd.DataFrame({'X_val':X_val, 'y_val':y_val}).sort_values(by=['X_val'])
+    df_test = pd.DataFrame({'X_test':X_test, 'y_test':y_test}).sort_values(by=['X_test'])
+
+    X_tr = np.array(df_train['X_train']).reshape(-1,1)
+    f = np.array([freq]*len(X_tr)).T.reshape(-1,1)
+    X_train = np.concatenate((X_tr,f),axis=1)
+    y_train = np.array(df_train['y_train'])
+
+    X_va = np.array(df_val['X_val']).reshape(-1,1)
+    f = np.array([freq]*len(X_va)).T.reshape(-1,1)
+    X_val = np.concatenate((X_va,f),axis=1)
+    y_val = np.array(df_val['y_val'])
+
+    X_te = np.array(df_test['X_test']).reshape(-1,1)
+    f = np.array([freq]*len(X_te)).T.reshape(-1,1)
+    X_test = np.concatenate((X_te,f),axis=1)
+    y_test = np.array(df_test['y_test'])
 
     return X_train, y_train, X_val, y_val, X_test, y_test
 
@@ -167,6 +186,5 @@ class DataSplit:
             batchX[i] = self.X[idx[i]]
             batchY[i, :] = self.Y[idx[i]]
         return batchX, batchY
-    
 
     

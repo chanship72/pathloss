@@ -91,8 +91,44 @@ def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     plt.xlabel("Distance(m) - log(x)")
     plt.ylabel("Path Loss(dB)")
     plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
-    plt.show()    
-    
+    plt.show()
+
+def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
+    cmap = plt.cm.coolwarm
+    fig = plt.figure()
+    fig.set_figwidth(12)
+    fig.set_figheight(6)
+
+    X_0 = np.linspace(1, 3, num=len(Xscatter))
+    X_0_scatter = X_0.T.reshape(-1,1)
+    X_1 = np.linspace(2, 3, num=len(Xscatter))
+    X_1_scatter = X_1.T.reshape(-1,1)
+    # X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
+    X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
+    ax = plt.axes(projection='3d')
+    ax.plot_trisurf(X_0, np.array(Xscatter[:,1]), model.predict(X_all),cmap='binary')
+    # ax.plot_trisurf(np.array(Xscatter[:,0]),np.array(Xscatter[:,1]),model.predict(Xscatter),cmap='binary')
+    cmap_i = 0.0
+#     ax.set_xscale('log')
+#     plt.scatter(Xscatter, Yscatter, s=1)
+    group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+    for idx in range(len(X)):
+#         # plt.plot(X[idx][:,0], model.predict(X[idx]), color=cmap(cmap_i))
+#         plt.scatter(X[idx], Y[idx], s=1, color=cmap(cmap_i))
+        ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], cmap=cmap(cmap_i), s=1, label=group[idx]);
+        cmap_i += 0.8
+#     ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
+    ax.set_xlabel("Distance(m) - log(x)")
+    ax.set_ylabel("Frequency(f) - log(f)")
+    ax.set_zlabel("Path Loss(dB)")
+#     plt.xlabel("Distance(m) - log(x)")
+#     plt.ylabel("Path Loss(dB)")
+    #plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
+    ax.legend(frameon=0)
+    ax.view_init(elev=20, azim=250)
+    plt.show()
+
+
 def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, activation, loss):
     # Xtrain, Ytrain, Xval, Yval, Xtest, Ytest = data_loader_pathloss("PLdata.mat")
 

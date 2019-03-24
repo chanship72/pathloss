@@ -2,13 +2,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import json
-from random import random
-
+import matplotlib.ticker as mticker
+from math import floor, log10
+from matplotlib.ticker import FormatStrFormatter
 from MLP.utils import data_loader_pathloss
 from matplotlib.lines import Line2D
 from sklearn.neural_network import MLPRegressor
 
-def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.01, learning_init=0.01):
+def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.001, learning_init=0.001):
 
     """
     mlp = MLPRegressor(hidden_layer_sizes=(1000,),
@@ -28,6 +29,7 @@ def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.01, learning_
                                            max_iter=1000,
                                            learning_rate_init=learning_init,
                                            alpha=alpha,
+                                           tol = 1e-4,
                                            verbose=False)
 
     mlp.fit(X,Y)
@@ -89,10 +91,46 @@ def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
         cmap_i += 0.8
 #     ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
     plt.xlabel("Distance(m) - log(x)")
+    plt.xscale('log')
     plt.ylabel("Path Loss(dB)")
     plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
-    plt.show()    
+    plt.show()
     
+def sci_notation(num):
+    return "$10^{}$".format(num)
+
+def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
+    fig = plt.figure()
+    fig.set_figwidth(12)
+    fig.set_figheight(6)
+
+#     X_0 = np.linspace(1, 3, num=len(Xscatter))
+#     X_0_scatter = X_0.T.reshape(-1,1)
+#     X_1 = np.linspace(2, 3, num=len(Xscatter))
+#     X_1_scatter = X_1.T.reshape(-1,1)
+#     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
+    ax = plt.axes(projection='3d')
+
+    #ax.contour3D(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary')
+    group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+    for idx in range(len(X)):
+        ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
+        ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
+#     ax.plot_trisurf(X_0, np.array(Xscatter[:,1]), model.predict(X_all),cmap='binary', alpha=0.5);
+    ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary', alpha=0.5)
+
+    ax.set_xlabel("Distance(m)")
+    ax.set_ylabel("Frequency(Ghz)")
+    ax.set_zlabel("Path Loss(dB)")
+    ax.legend(frameon=0, markerscale=5)
+    ax.view_init(elev=20, azim=250)
+
+    plt.xticks([2.0],[sci_notation(2)])
+    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
+    
+    plt.show()
+
+
 def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, activation, loss):
     # Xtrain, Ytrain, Xval, Yval, Xtest, Ytest = data_loader_pathloss("PLdata.mat")
 
@@ -124,7 +162,7 @@ def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, act
             unitList.append(unit)
             rmseList.append(rmse)
             modelList.append(model)
-            # print("#hidden_layer:" + str(hidden_layer) + "hidden_units:" + str(unit) + "RMSE:" + str(rmse))
+            print("#hidden_layer:" + str(hidden_layer) + "hidden_units:" + str(unit) + "RMSE:" + str(rmse))
 
     min_loss = min(rmseList)
 

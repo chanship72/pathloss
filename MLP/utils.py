@@ -114,6 +114,7 @@ def data_loader_pathloss_with_freq(dataset, freq):
 
     #X = np.concatenate((np.log10(d),f),axis=1)
     X = np.log10(d)
+    #X = d
     Y = p
 
     X_train, X_val, y_train, y_val = train_test_split(X,Y,test_size=0.2, shuffle=True)

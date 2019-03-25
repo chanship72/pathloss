@@ -9,7 +9,7 @@ from MLP.utils import data_loader_pathloss
 from matplotlib.lines import Line2D
 from sklearn.neural_network import MLPRegressor
 
-def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.001, learning_init=0.001):
+def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.0, learning_init=0.001):
 
     """
     mlp = MLPRegressor(hidden_layer_sizes=(1000,),
@@ -26,10 +26,10 @@ def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.001, learning
                                            activation=activation,
                                            solver=loss,
                                            learning_rate='constant',
-                                           max_iter=1000,
+                                           max_iter=2000,
                                            learning_rate_init=learning_init,
                                            alpha=alpha,
-                                           tol = 1e-4,
+                                           tol = 1e-6,
                                            verbose=False)
 
     mlp.fit(X,Y)
@@ -162,7 +162,8 @@ def model_validation(Xtrain, Ytrain, Xval, Yval, mode, max_layers, max_unit, act
             unitList.append(unit)
             rmseList.append(rmse)
             modelList.append(model)
-            print("#hidden_layer:" + str(hidden_layer) + "hidden_units:" + str(unit) + "RMSE:" + str(rmse))
+#             print("#hidden_layer:" + str(hidden_layer) + "hidden_units:" + str(unit) + "RMSE:" + str(rmse))
+            print(str(unit) + "      " + str(rmse))
 
     min_loss = min(rmseList)
 

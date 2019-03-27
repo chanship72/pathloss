@@ -105,7 +105,7 @@ def data_loader_pathloss(dataset):
 
     return X_train.reshape(-1, 1), y_train, X_val.reshape(-1, 1), y_val, X_test.reshape(-1, 1), y_test
 
-def data_loader_pathloss_with_freq(dataset, freq):
+def data_loader_pathloss_with_freq(dataset, freq, log = True):
     mat_contents = np.array(sio.loadmat(dataset)['temp1'])
     # print(mat_contents.shape)
 
@@ -113,8 +113,10 @@ def data_loader_pathloss_with_freq(dataset, freq):
     p = mat_contents[:,1]
 
     #X = np.concatenate((np.log10(d),f),axis=1)
-    X = np.log10(d)
-    #X = d
+    if log:
+        X = np.log10(d)
+    else:
+        X = d
     Y = p
 
     X_train, X_val, y_train, y_val = train_test_split(X,Y,test_size=0.2, shuffle=True)

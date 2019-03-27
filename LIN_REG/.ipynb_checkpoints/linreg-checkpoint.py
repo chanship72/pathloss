@@ -44,16 +44,21 @@ def linear_regression_multi_graph_comb(model, X, Xscatter, Yscatter):
     plt.show()    
     
 def lin_prediction_error(model, X, Y):
+#     X = np.log10(X)
     X_predictions = model.predict(X)
     rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))
     
     return rmse
 
-def linearRegression(X_train, y_train, X_val, y_val, X_test, y_test, label="test"):
+def linearRegression(X_train, y_train):
+#     X_train = np.log10(X_train)
+    
     model = linear_model.LinearRegression()
     model.fit(X_train, y_train)
 
     return model
+
+
 #     train_prediction = model.predict(X_train)
 #     train_rmse = np.sqrt(np.mean((y_train-train_prediction)**2));
 
@@ -77,7 +82,7 @@ def linearRegression(X_train, y_train, X_val, y_val, X_test, y_test, label="test
 
 #     plt.show()
     
-def ridgeRegression(X_train, y_train, X_val, y_val, X_test, y_test, label="test"):
+def ridgeRegression(X_train, y_train):
     model = linear_model.RidgeCV(alphas=[0.1, 1.0, 10.0], cv=3)
     model.fit(X_train, y_train)
 

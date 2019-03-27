@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import json
-import matplotlib.ticker as mticker
+import matplotlib.ticker as ticker
+import matplotlib.ticker as mtick
+
 from math import floor, log10
 from matplotlib.ticker import FormatStrFormatter
 from MLP.utils import data_loader_pathloss
@@ -98,12 +100,21 @@ def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     
 def sci_notation(num):
     return "$10^{}$".format(num)
+def myticks(x,pos):
+
+    if x == 0: return "$0$"
+
+    exponent = int(x)
+    coeff = 10**x/10**exponent
+
+    return r"${:2.2f} \times 10^{{ {:2d} }}$".format(coeff,exponent)
+
 
 def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
     fig = plt.figure()
     fig.set_figwidth(12)
     fig.set_figheight(6)
-
+    
 #     X_0 = np.linspace(1, 3, num=len(Xscatter))
 #     X_0_scatter = X_0.T.reshape(-1,1)
 #     X_1 = np.linspace(2, 3, num=len(Xscatter))
@@ -111,23 +122,45 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
 
-    #ax.contour3D(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary')
     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
     for idx in range(len(X)):
         ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
         ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
-#     ax.plot_trisurf(X_0, np.array(Xscatter[:,1]), model.predict(X_all),cmap='binary', alpha=0.5);
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary', alpha=0.5)
+#     if flag == 'bh':
+#         ax.set_xlim(1.7, 2.8)
+#     else:
+#         ax.set_xlim(1.7, 3.1)
+#     ax.set_ylim(np.log10(3200),np.log10(7000))
 
-    ax.set_xlabel("Distance(m)")
-    ax.set_ylabel("Frequency(Ghz)")
+    ax.set_xlabel("Log distance(m)",labelpad=12)
+    ax.set_ylabel("Frequency(Ghz)",labelpad=12)
     ax.set_zlabel("Path Loss(dB)")
-    ax.legend(frameon=0, markerscale=5)
-    ax.view_init(elev=20, azim=250)
-
-    plt.xticks([2.0],[sci_notation(2)])
-    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
+#     ax.legend(frameon=0, markerscale=5, loc='upper right')
+    ax.view_init(elev=20, azim=240)
     
+#     ax.xaxis.set_major_locator(mtick.LogLocator(base=10**(1/10)))
+#     plt.setp(ax.get_xminorticklabels(), visible=False);
+
+#     plt.xticks([2.0,3.0],[sci_notation(2),sci_notation(3)])
+#     labels = [item.get_text() for item in ax.get_xticklabels()]
+#     labels[1] = sci_notation(2)
+#     if flag == 'bh':
+#         labels[6] = sci_notation(3)    
+#     else:
+#         labels[6] = sci_notation(3)
+#     ax.set_xticklabels(labels)
+    plt.minorticks_on()
+
+    # Customize the major grid
+    plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
+    # Customize the minor grid
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+
+#     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
+#     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
+
+    #plt.yticks([3400,5300,6400],['3.4','5.3','6.4'])
     plt.show()
 
 

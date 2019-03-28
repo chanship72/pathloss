@@ -137,7 +137,7 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
     ax.set_ylabel("Frequency(Ghz)",labelpad=12)
     ax.set_zlabel("Path Loss(dB)")
 #     ax.legend(frameon=0, markerscale=5, loc='upper right')
-    ax.view_init(elev=20, azim=240)
+    ax.view_init(elev=20, azim=220)
     
 #     ax.xaxis.set_major_locator(mtick.LogLocator(base=10**(1/10)))
 #     plt.setp(ax.get_xminorticklabels(), visible=False);
@@ -160,7 +160,7 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
 
-    #plt.yticks([3400,5300,6400],['3.4','5.3','6.4'])
+    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
     plt.show()
 
 

@@ -143,6 +143,28 @@ def data_loader_pathloss_with_freq(dataset, freq, log = True):
 
     return X_train, y_train, X_val, y_val, X_test, y_test
 
+def data_loader_all_with_freq(dataset, freq, log = True):
+    mat_contents = np.array(sio.loadmat(dataset)['temp1'])
+    # print(mat_contents.shape)
+
+    d = mat_contents[:,0]
+    p = mat_contents[:,1]
+
+    #X = np.concatenate((np.log10(d),f),axis=1)
+    if log:
+        X = np.log10(d)
+    else:
+        X = d
+    Y = p
+
+    df_train = pd.DataFrame({'X':X, 'y':Y}).sort_values(by=['X'])
+    X_tr = np.array(df_train['X']).reshape(-1,1)
+    f = np.array([freq]*len(X_tr)).T.reshape(-1,1)
+    X_train = np.concatenate((X_tr,f),axis=1)
+    y_train = np.array(df_train['y'])
+    
+    return X_train, y_train
+
 def predict_label(f):
     # This is a function to determine the predicted label given scores
     if f.shape[1] == 1:

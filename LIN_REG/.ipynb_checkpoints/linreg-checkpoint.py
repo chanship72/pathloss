@@ -50,6 +50,46 @@ def lin_prediction_error(model, X, Y):
     
     return rmse
 
+def L_hata(d, f, h_t):
+    # Hata model prediction
+    A = 46.3 + 33.9*np.log10(f) - 13.28*np.log10(h_t)
+    B = -3.2*np.log10(np.power(11.75*2,2)) + 4.97
+    C = 44.9 - 6.55*np.log10(h_t)
+    D = 0
+
+    return A + B + C * np.log10(0.001 * d) + D
+
+def hata_prediction_error(X, Y, h_t):
+    X_predictions = L_hata(X[:,0], X[:,1], h_t)
+    rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))
+    
+    return rmse    
+
+def L_modified_hata(d,f,h_t,area = 'A'):
+    # modified Hata model prediction
+    d_1, d_2 = 0.0,0.0
+    if area == 'A':
+        d_1 = -3.53 * np.log10(h_t)
+        d_2 = -10 * np.log10(f/1000) - 9
+    elif area == 'B':
+        d_1 = 2 * np.log10(h_t)
+        d_2 = -0.009 * np.exp(f/1000) - 2.3 
+        
+    A = 46.3 + 33.9*np.log10(f) - 13.28*np.log10(h_t)
+    B = -3.2*np.log10(np.power(11.75*2,2)) + 4.97
+    C = 44.9 - 6.55*np.log10(h_t)
+    D = 0
+
+    return A + B + (C+d_1)*np.log10(0.001*d) + D + d_2
+
+
+def mhata_prediction_error(X, Y, h_t, area='A'):
+    X_predictions = L_modified_hata(X[:,0], X[:,1], h_t, area)
+    rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))
+    
+    return rmse    
+
+
 def linearRegression(X_train, y_train):
 #     X_train = np.log10(X_train)
     

@@ -133,9 +133,9 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #         ax.set_xlim(1.7, 3.1)
 #     ax.set_ylim(np.log10(3200),np.log10(7000))
 
-    ax.set_xlabel("Log distance(m)",labelpad=12)
-    ax.set_ylabel("Frequency(Ghz)",labelpad=12)
-    ax.set_zlabel("Path Loss(dB)")
+    ax.set_xlabel("Log distance(m)",labelpad=18,fontsize=18)
+    ax.set_ylabel("Frequency(Ghz)",labelpad=18,fontsize=18)
+    ax.set_zlabel("Path Loss(dB)",labelpad=10,fontsize=18)
 #     ax.legend(frameon=0, markerscale=5, loc='upper right')
     ax.view_init(elev=20, azim=220)
     
@@ -151,7 +151,7 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #         labels[6] = sci_notation(3)
 #     ax.set_xticklabels(labels)
     plt.minorticks_on()
-
+    plt.rcParams['xtick.labelsize']=15
     # Customize the major grid
     plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
     # Customize the minor grid
@@ -160,7 +160,7 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
 
-    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
+    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'],fontsize=18)
     plt.show()
 
 

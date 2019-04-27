@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="356eb682-75fa-45c6-b1e2-0e1ae4832988" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.ipynb_checkpoints/comb_regression-checkpoint.ipynb" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/comb_regression-checkpoint.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MLP/mlp_regression.py" afterPath="$PROJECT_DIR$/MLP/mlp_regression.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/comb_regression.ipynb" afterPath="$PROJECT_DIR$/comb_regression.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MLP/utils.py" afterPath="$PROJECT_DIR$/MLP/utils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ann_regression_multidim.ipynb" afterPath="$PROJECT_DIR$/ann_regression_multidim.ipynb" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,20 +16,21 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="comb_regression.ipynb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/comb_regression.ipynb">
-          <provider selected="true" editor-type-id="ipnb-editor">
-            <state>
-              <selected id="16" />
+      <file leaf-file-name="convert3dGraph.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MLP/convert3dGraph.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1215">
+              <caret line="7" column="26" lean-forward="false" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="convert3dGraph.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/MLP/convert3dGraph.py">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/MLP/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="27" column="71" lean-forward="false" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
+            <state relative-caret-position="398">
+              <caret line="229" column="16" lean-forward="false" selection-start-line="229" selection-start-column="4" selection-end-line="229" selection-end-column="16" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,9 +41,11 @@
       <file leaf-file-name="mlp_regression.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MLP/mlp_regression.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="6" column="33" lean-forward="true" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
-              <folding />
+            <state relative-caret-position="720">
+              <caret line="231" column="0" lean-forward="true" selection-start-line="231" selection-start-column="0" selection-end-line="231" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#31#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,24 +59,28 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>mlp_train_multi_graph</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/MLP/utils.py" />
         <option value="$PROJECT_DIR$/MLP/convert3dGraph.py" />
-        <option value="$PROJECT_DIR$/MLP/mlp_regression.py" />
         <option value="$PROJECT_DIR$/comb_regression.ipynb" />
+        <option value="$PROJECT_DIR$/MLP/mlp_regression.py" />
+        <option value="$PROJECT_DIR$/MLP/utils.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="565" />
     <option name="y" value="23" />
-    <option name="width" value="1351" />
-    <option name="height" value="977" />
+    <option name="width" value="1115" />
+    <option name="height" value="1006" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -90,6 +97,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -116,24 +125,8 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pathloss" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pathloss" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="LIN_REG" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -152,7 +145,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.convert3dGraph">
+  <component name="RunManager" selected="Python.utils">
     <configuration default="false" name="utils" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -259,8 +252,8 @@
     </list>
     <recent_temporary>
       <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Python.convert3dGraph" />
-        <item index="1" class="java.lang.String" itemvalue="Python.utils" />
+        <item index="0" class="java.lang.String" itemvalue="Python.utils" />
+        <item index="1" class="java.lang.String" itemvalue="Python.convert3dGraph" />
       </list>
     </recent_temporary>
   </component>
@@ -278,13 +271,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="565" y="23" width="1351" height="977" extended-state="0" />
+    <frame x="0" y="23" width="1115" height="1006" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30051813" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27085203" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32993197" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2546652" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -331,11 +324,31 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/MLP/convert3dGraph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MLP/mlp_regression.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="0" lean-forward="true" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/MLP/mlp_regression.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="735">
           <caret line="49" column="20" lean-forward="false" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -343,10 +356,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#52#0" expanded="false" />
-            <marker date="1552978021967" expanded="true" signature="187:370" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -364,7 +373,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="735">
           <caret line="49" column="20" lean-forward="false" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -372,10 +383,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#52#0" expanded="false" />
-            <marker date="1552978021967" expanded="true" signature="187:370" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -393,7 +400,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="615">
           <caret line="49" column="20" lean-forward="false" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -401,10 +410,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#52#0" expanded="false" />
-            <marker date="1552978021967" expanded="true" signature="187:370" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -422,7 +427,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -440,10 +447,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#52#0" expanded="false" />
-            <marker date="1552978021967" expanded="true" signature="187:370" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -451,7 +454,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="615">
           <caret line="49" column="20" lean-forward="false" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -469,7 +474,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -477,42 +484,32 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comb_regression.ipynb" />
+    <entry file="file://$PROJECT_DIR$/MLP/convert3dGraph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1215">
+          <caret line="7" column="26" lean-forward="false" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MLP/mlp_regression.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="231" column="0" lean-forward="true" selection-start-line="231" selection-start-column="0" selection-end-line="231" selection-end-column="0" />
           <folding>
-            <element signature="e#0#52#0" expanded="false" />
-            <marker date="1552978021967" expanded="true" signature="187:370" ph="..." />
+            <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MLP/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="740">
-          <caret line="190" column="0" lean-forward="false" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comb_regression.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MLP/mlp_regression.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="33" lean-forward="true" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MLP/convert3dGraph.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="71" lean-forward="false" selection-start-line="27" selection-start-column="71" selection-end-line="27" selection-end-column="71" />
+        <state relative-caret-position="398">
+          <caret line="229" column="16" lean-forward="false" selection-start-line="229" selection-start-column="4" selection-end-line="229" selection-end-column="16" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

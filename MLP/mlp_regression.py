@@ -63,23 +63,27 @@ def mlp_train_graph(model, X, Y, activation, loss):
     plt.ylabel("Path Loss(dB)")
     plt.show()
 
-def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, activation, loss):
+def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, type):
     cmap = plt.cm.coolwarm
     fig,ax = plt.subplots()
-    fig.set_figwidth(8)
+    fig.set_figwidth(16)
     fig.set_figheight(6)
     cmap_i = 0.0
-#     ax.set_xscale('log')
-    plt.scatter(Xscatter, Yscatter, s=1)        
+    plt.scatter(Xscatter, Yscatter, s=1)
     for idx in range(len(X)):
-        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))        
+        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))
         cmap_i += 0.8
-#     ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
-    plt.xlabel("Distance(m) - log(x)")
+
+    if type == 'distance':
+        plt.xlabel("Distance(m) - log(x)")
+    elif type == 'height':
+        plt.xlabel("Distance(m)")
+    else:
+        plt.xlabel("Distance(m) - log(x)")
     plt.ylabel("Path Loss(dB)")
-    plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
+    plt.legend(('0.4Ghz', '1.399Ghz', '2.249Ghz'))
     plt.show()
-    
+
 def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     cmap = plt.cm.coolwarm
     fig,ax = plt.subplots()
@@ -100,15 +104,14 @@ def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     
 def sci_notation(num):
     return "$10^{}$".format(num)
-def myticks(x,pos):
 
+def myticks(x,pos):
     if x == 0: return "$0$"
 
     exponent = int(x)
     coeff = 10**x/10**exponent
 
     return r"${:2.2f} \times 10^{{ {:2d} }}$".format(coeff,exponent)
-
 
 def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
     fig = plt.figure()

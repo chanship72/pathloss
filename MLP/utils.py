@@ -167,6 +167,11 @@ def data_loader_all_with_freq(dataset, freq, log = True):
 
 def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
     df = pd.read_csv(dataset, delimiter=',', names = ["type", "dist", "ploss", "height"])
+
+    print("Covariance Matrix")
+    print(df.cov())
+    print("--------------------------------------------------")
+    
     df['height'] = df['height'] * 1000
     df['dist'] = df['dist'] * 1000
     df['freq'] = freq
@@ -180,9 +185,6 @@ def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
     X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(df_m[['dist','freq','height']],df_m[['ploss']], test_size=0.2, shuffle=True)
     X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(df_s[['dist','freq','height']],df_s[['ploss']], test_size=0.2, shuffle=True)
 
-    # Train_m, Val_m = train_test_split(df_m, test_size=0.2, shuffle=True)
-    # Train_s, Val_s = train_test_split(df_s, test_size=0.2, shuffle=True)
-    #
     X_train_m['ploss'] = y_train_m
     X_train_m = X_train_m.sort_values(by=[sorting_col], ascending=True)
     y_train_m = X_train_m['ploss'].values
@@ -205,20 +207,6 @@ def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
     X_val_s = np.array(X_val_s)
     y_train_s = np.array(y_train_s)
     y_val_s = np.array(y_val_s)
-    # Train_m = Train_m.sort_values(by=['dist'], ascending=True)
-    # Val_m = Val_m.sort_values(by=['dist'], ascending=True)
-    # Train_s = Train_s.sort_values(by=['dist'], ascending=True)
-    # Val_s = Val_s.sort_values(by=['dist'], ascending=True)
-    #
-    # X_train_m = Train_m[['dist','freq','height']].values
-    # X_val_m = Val_m[['dist','freq','height']].values
-    # X_train_s = Train_s[['dist','freq','height']].values
-    # X_val_s = Val_s[['dist','freq','height']].values
-    #
-    # y_train_m = Train_m[["ploss"]].values
-    # y_val_m = Train_m[["ploss"]].values
-    # y_train_s = Train_s[["ploss"]].values
-    # y_val_s = Train_s[["ploss"]].values
 
     print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_m),n_2=len(y_val_m),n=len(df_m), t='moving type'))
     print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_s),n_2=len(y_val_s),n=len(df_s), t='stationary type'))

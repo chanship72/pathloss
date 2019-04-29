@@ -165,6 +165,76 @@ def data_loader_all_with_freq(dataset, freq, log = True):
     
     return X_train, y_train
 
+def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
+    df = pd.read_csv(dataset, delimiter=',', names = ["type", "dist", "ploss", "height"])
+
+    print("Covariance Matrix")
+    print(df.cov())
+    print("--------------------------------------------------")
+    
+    df['height'] = df['height'] * 1000
+    df['dist'] = df['dist'] * 1000
+    df['freq'] = freq
+    if log:
+        df['dist'] = df[['dist']].apply(np.log10, axis=1)
+
+    print("Preprocessing <{n}>...Total {s}".format(n=dataset, s=len(df)))
+    df_m = df[df.type == 'm']
+    df_s = df[df.type == 's']
+
+    X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(df_m[['dist','freq','height']],df_m[['ploss']], test_size=0.2, shuffle=True)
+    X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(df_s[['dist','freq','height']],df_s[['ploss']], test_size=0.2, shuffle=True)
+
+    X_train_m['ploss'] = y_train_m
+    X_train_m = X_train_m.sort_values(by=[sorting_col], ascending=True)
+    y_train_m = X_train_m['ploss'].values
+    X_val_m['ploss'] = y_val_m
+    X_val_m = X_val_m.sort_values(by=[sorting_col], ascending=True)
+    y_val_m = X_val_m['ploss'].values
+
+    X_train_s['ploss'] = y_train_s
+    X_train_s = X_train_s.sort_values(by=[sorting_col], ascending=True)
+    y_train_s = X_train_s['ploss'].values
+    X_val_s['ploss'] = y_val_s
+    X_val_s = X_val_s.sort_values(by=[sorting_col], ascending=True)
+    y_val_s = X_val_s['ploss'].values
+
+    X_train_m = np.array(X_train_m)
+    X_val_m = np.array(X_val_m)
+    y_train_m = np.array(y_train_m)
+    y_val_m = np.array(y_val_m)
+    X_train_s = np.array(X_train_s)
+    X_val_s = np.array(X_val_s)
+    y_train_s = np.array(y_train_s)
+    y_val_s = np.array(y_val_s)
+
+    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_m),n_2=len(y_val_m),n=len(df_m), t='moving type'))
+    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_s),n_2=len(y_val_s),n=len(df_s), t='stationary type'))
+    print("===============================================================================")
+    return X_train_m, X_val_m, y_train_m, y_val_m, X_train_s, X_val_s, y_train_s, y_val_s
+
+# data_loader_from_csv('../data/PLdata_iksan_sm_400.csv', 400)
+
+def combineArray(A, B, C):
+    comb = np.concatenate((A, B), axis=0)
+    comb = np.concatenate((comb, C), axis=0)
+    return comb
+
+def multiArraySort(A, B):
+    sorted_df = pd.DataFrame({'A': A, 'B': B}).sort_values(by=['A'])
+    s_A = np.array(sorted_df['A'])
+    s_B = np.array(sorted_df['B'])
+
+    return s_A, s_B
+
+def test_multiArraySort():
+    B = np.array([1,2,3,4,5,6])
+    A = np.array([2,4,123,5,3,7])
+    print(B)
+    s_A, s_B = multiArraySort(A,B)
+
+    print(s_B)
+
 def predict_label(f):
     # This is a function to determine the predicted label given scores
     if f.shape[1] == 1:

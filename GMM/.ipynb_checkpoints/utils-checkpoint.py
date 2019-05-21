@@ -241,3 +241,35 @@ def gp_ann_train_multi_3dgraph(modelGp, modelAnn, X, Y, Xscatter):
     plt.show()
 # X_train, y_train, X_val, y_val = data_loader_pathloss("../data/PLdata_bh_34.mat")
 # X_train, y_train, X_val, y_val
+
+def gpCompareDiffDim(model2DGp, model3DGp, X, Y, type='mean'):
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+    cmap_i = 0.0
+    
+    y_2d_pred, d2_sigma = model2DGp.predict(X[:,0].reshape(-1,1), return_std=True)
+    y_3d_pred, d3_sigma = model3DGp.predict(X, return_std=True)
+    
+    if(type == 'mean'):
+        plt.scatter(X[:,0], Y, s=1)
+        plt.plot(X[:,0], y_2d_pred, color=cmap(cmap_i), label='2D model')
+        cmap_i += 0.8
+        plt.plot(X[:,0], y_3d_pred, color=cmap(cmap_i), label='3D model')
+        plt.ylabel("Path Loss(dB)")
+    elif(type == 'sigma'):
+        plt.plot(X[:,0], d2_sigma, color=cmap(cmap_i), label='2D model')
+        cmap_i += 0.8
+        plt.plot(X[:,0], d3_sigma, color=cmap(cmap_i), label='3D model')
+        plt.ylabel("Sigma(dB)")
+
+    plt.xlabel("Distance(m) - log(x)")
+    ax.legend()
+    plt.show()
+
+def mergeSet(X1, X2, X3):
+    X = np.concatenate((X1, X2), axis=0)
+    X = np.concatenate((X, X3), axis=0)
+
+    return X

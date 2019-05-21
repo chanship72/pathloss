@@ -5,21 +5,19 @@ import scipy.io as sio
 import itertools
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from scipy import linalg
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
 
 from sklearn import mixture
 
 color_iter = itertools.cycle(['navy', 'c', 'cornflowerblue', 'gold',
                               'darkorange','blue','red','green','black','gray'])
-
 
 def data_loader_pathloss(dataset):
     mat_contents = np.array(sio.loadmat(dataset)['temp1'])
@@ -109,20 +107,20 @@ def gp_train_multi_3dgraph(model, X, Y, Xscatter):
     fig.set_figheight(6)
     F = np.linspace(np.log10(3400), np.log10(6400), 10)
     conF = []
-#     np.zeros((len(Xscatter[:,0]), len(F)))
+    #     np.zeros((len(Xscatter[:,0]), len(F)))
     for f in F:
         conF.append(np.array([f] * len(Xscatter[:,0])))
     print(np.array(conF).shape)
-#     assert F.shape == Xscatter[:,1].shape, "different size"
-    
-#     conX = np.concatenate((np.array(Xscatter[:,0]).reshape(-1,1),np.array(F).reshape(-1,1)),axis=1)
-#     print(conX.shape)
-    
-#     X_0 = np.linspace(1, 3, num=len(Xscatter))
-#     X_0_scatter = X_0.T.reshape(-1,1)
-#     X_1 = np.linspace(2, 3, num=len(Xscatter))
-#     X_1_scatter = X_1.T.reshape(-1,1)
-#     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
+    #     assert F.shape == Xscatter[:,1].shape, "different size"
+
+    #     conX = np.concatenate((np.array(Xscatter[:,0]).reshape(-1,1),np.array(F).reshape(-1,1)),axis=1)
+    #     print(conX.shape)
+
+    #     X_0 = np.linspace(1, 3, num=len(Xscatter))
+    #     X_0_scatter = X_0.T.reshape(-1,1)
+    #     X_1 = np.linspace(2, 3, num=len(Xscatter))
+    #     X_1_scatter = X_1.T.reshape(-1,1)
+    #     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
 
     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
@@ -133,33 +131,30 @@ def gp_train_multi_3dgraph(model, X, Y, Xscatter):
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred - 1.9600 * sigma), cmap='Blues', linewidth=0.2, antialiased=True)
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred + 1.9600 * sigma), cmap='Reds', linewidth=0.2, antialiased=True)
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred), cmap='binary', linewidth=0.2, antialiased=True)
-    #     ax.plot_surface(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred - 1.9600 * sigma).reshape(-1,1), cmap='binary', linewidth=0.2, antialiased=True)
-#     ax.plot_surface(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred + 1.9600 * sigma).reshape(-1,1), cmap='binary', linewidth=0.2, antialiased=True)
-#     ax.plot_surface(np.array(Xscatter[:,0]), np.array(F), model.predict(np.array(conF).T), cmap='binary')
 
-#     if flag == 'bh':
-#         ax.set_xlim(1.7, 2.8)
-#     else:
-#         ax.set_xlim(1.7, 3.1)
-#     ax.set_ylim(np.log10(3200),np.log10(7000))
+    #     if flag == 'bh':
+    #         ax.set_xlim(1.7, 2.8)
+    #     else:
+    #         ax.set_xlim(1.7, 3.1)
+    #     ax.set_ylim(np.log10(3200),np.log10(7000))
 
     ax.set_xlabel("Log distance(m)",labelpad=18,fontsize=18)
     ax.set_ylabel("Frequency(Ghz)",labelpad=18,fontsize=18)
     ax.set_zlabel("Path Loss(dB)",labelpad=10,fontsize=18)
-#     ax.legend(frameon=0, markerscale=5, loc='upper right')
+    #     ax.legend(frameon=0, markerscale=5, loc='upper right')
     ax.view_init(elev=20, azim=220)
     
-#     ax.xaxis.set_major_locator(mtick.LogLocator(base=10**(1/10)))
-#     plt.setp(ax.get_xminorticklabels(), visible=False);
+    #     ax.xaxis.set_major_locator(mtick.LogLocator(base=10**(1/10)))
+    #     plt.setp(ax.get_xminorticklabels(), visible=False);
 
-#     plt.xticks([2.0,3.0],[sci_notation(2),sci_notation(3)])
-#     labels = [item.get_text() for item in ax.get_xticklabels()]
-#     labels[1] = sci_notation(2)
-#     if flag == 'bh':
-#         labels[6] = sci_notation(3)    
-#     else:
-#         labels[6] = sci_notation(3)
-#     ax.set_xticklabels(labels)
+    #     plt.xticks([2.0,3.0],[sci_notation(2),sci_notation(3)])
+    #     labels = [item.get_text() for item in ax.get_xticklabels()]
+    #     labels[1] = sci_notation(2)
+    #     if flag == 'bh':
+    #         labels[6] = sci_notation(3)    
+    #     else:
+    #         labels[6] = sci_notation(3)
+    #     ax.set_xticklabels(labels)
     plt.minorticks_on()
     plt.rcParams['xtick.labelsize']=15
     # Customize the major grid
@@ -167,10 +162,6 @@ def gp_train_multi_3dgraph(model, X, Y, Xscatter):
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
 
-#     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
-#     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
-
-    #plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'],fontsize=18)
     plt.show()
     
 def gp_ann_train_multi_3dgraph(modelGp, modelAnn, X, Y, Xscatter):
@@ -178,13 +169,7 @@ def gp_ann_train_multi_3dgraph(modelGp, modelAnn, X, Y, Xscatter):
     fig.set_figwidth(12)
     fig.set_figheight(6)
 
-#     X_0 = np.linspace(1, 3, num=len(Xscatter))
-#     X_0_scatter = X_0.T.reshape(-1,1)
-#     X_1 = np.linspace(2, 3, num=len(Xscatter))
-#     X_1_scatter = X_1.T.reshape(-1,1)
-#     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
-
     _, sigma = modelGp.predict(Xscatter, return_std=True)
     ann_y_pred = modelAnn.predict(Xscatter)
 
@@ -200,33 +185,13 @@ def gp_ann_train_multi_3dgraph(modelGp, modelAnn, X, Y, Xscatter):
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (ann_y_pred - 1.9600 * sigma), cmap='Blues', linewidth=0.2, antialiased=True)
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (ann_y_pred + 1.9600 * sigma), cmap='Reds', linewidth=0.2, antialiased=True)
     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (ann_y_pred), cmap='binary', linewidth=0.2, antialiased=True)
-    #     ax.plot_surface(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred - 1.9600 * sigma).reshape(-1,1), cmap='binary', linewidth=0.2, antialiased=True)
-#     ax.plot_surface(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), (y_pred + 1.9600 * sigma).reshape(-1,1), cmap='binary', linewidth=0.2, antialiased=True)
-#     ax.plot_surface(np.array(Xscatter[:,0]), np.array(F), model.predict(np.array(conF).T), cmap='binary')
-
-#     if flag == 'bh':
-#         ax.set_xlim(1.7, 2.8)
-#     else:
-#         ax.set_xlim(1.7, 3.1)
-#     ax.set_ylim(np.log10(3200),np.log10(7000))
 
     ax.set_xlabel("Log distance(m)",labelpad=18,fontsize=18)
     ax.set_ylabel("Frequency(Ghz)",labelpad=18,fontsize=18)
     ax.set_zlabel("Path Loss(dB)",labelpad=10,fontsize=18)
-#     ax.legend(frameon=0, markerscale=5, loc='upper right')
+    # ax.legend(frameon=0, markerscale=5, loc='upper right')
     ax.view_init(elev=20, azim=220)
     
-#     ax.xaxis.set_major_locator(mtick.LogLocator(base=10**(1/10)))
-#     plt.setp(ax.get_xminorticklabels(), visible=False);
-
-#     plt.xticks([2.0,3.0],[sci_notation(2),sci_notation(3)])
-#     labels = [item.get_text() for item in ax.get_xticklabels()]
-#     labels[1] = sci_notation(2)
-#     if flag == 'bh':
-#         labels[6] = sci_notation(3)    
-#     else:
-#         labels[6] = sci_notation(3)
-#     ax.set_xticklabels(labels)
     plt.minorticks_on()
     plt.rcParams['xtick.labelsize']=15
     # Customize the major grid
@@ -234,10 +199,40 @@ def gp_ann_train_multi_3dgraph(modelGp, modelAnn, X, Y, Xscatter):
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
 
-#     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
-#     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
+    # ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
+    # ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
 
     #plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'],fontsize=18)
     plt.show()
-# X_train, y_train, X_val, y_val = data_loader_pathloss("../data/PLdata_bh_34.mat")
-# X_train, y_train, X_val, y_val
+
+def gpCompareDiffDim(model2DGp, model3DGp, X, Y, type='mean'):
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+    cmap_i = 0.0
+    
+    y_2d_pred, d2_sigma = model2DGp.predict(X[:,0].reshape(-1,1), return_std=True)
+    y_3d_pred, d3_sigma = model3DGp.predict(X, return_std=True)
+    
+    if(type == 'mean'):
+        plt.scatter(X[:,0], Y, s=1)
+        plt.plot(X[:,0], y_2d_pred, color=cmap(cmap_i), label='2D model')
+        cmap_i += 0.8
+        plt.plot(X[:,0], y_3d_pred, color=cmap(cmap_i), label='3D model')
+        plt.ylabel("Path Loss(dB)")
+    elif(type == 'sigma'):
+        plt.plot(X[:,0], d2_sigma, color=cmap(cmap_i), label='2D model')
+        cmap_i += 0.8
+        plt.plot(X[:,0], d3_sigma, color=cmap(cmap_i), label='3D model')
+        plt.ylabel("Sigma(dB)")
+
+    plt.xlabel("Distance(m) - log(x)")
+    ax.legend()
+    plt.show()
+
+def mergeSet(X1, X2, X3):
+    X = np.concatenate((X1, X2), axis=0)
+    X = np.concatenate((X, X3), axis=0)
+
+    return X

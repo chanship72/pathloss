@@ -165,14 +165,18 @@ def data_loader_all_with_freq(dataset, freq, log = True):
     
     return X_train, y_train
 
-def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
+def data_loader_from_csv(dataset, freq, sorting_col = 'dist' , distThreshold=4, testRatio=0.2, log = True):
     df = pd.read_csv(dataset, delimiter=',', names = ["type", "dist", "ploss", "height"])
+
+    print("original: "+str(len(df)))
+    df = df[df['dist'] <= distThreshold]
+    print("filtered: "+str(len(df)))
 
     print("Covariance Matrix")
     print(df.cov())
     print("--------------------------------------------------")
     
-    df['height'] = df['height'] * 1000
+#     df['height'] = df['height'] * 1000
     df['dist'] = df['dist'] * 1000
     df['freq'] = freq
     if log:
@@ -182,22 +186,26 @@ def data_loader_from_csv(dataset, freq, sorting_col = 'dist', log = True):
     df_m = df[df.type == 'm']
     df_s = df[df.type == 's']
 
-    X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(df_m[['dist','freq','height']],df_m[['ploss']], test_size=0.2, shuffle=True)
-    X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(df_s[['dist','freq','height']],df_s[['ploss']], test_size=0.2, shuffle=True)
+    X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(df_m[['dist','freq']],df_m[['ploss']], test_size=testRatio, shuffle=True)
+    X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(df_s[['dist','freq']],df_s[['ploss']], test_size=testRatio, shuffle=True)
 
     X_train_m['ploss'] = y_train_m
     X_train_m = X_train_m.sort_values(by=[sorting_col], ascending=True)
     y_train_m = X_train_m['ploss'].values
+    X_train_m = X_train_m[['dist','freq']]
     X_val_m['ploss'] = y_val_m
     X_val_m = X_val_m.sort_values(by=[sorting_col], ascending=True)
     y_val_m = X_val_m['ploss'].values
+    X_val_m = X_val_m[['dist','freq']]
 
     X_train_s['ploss'] = y_train_s
     X_train_s = X_train_s.sort_values(by=[sorting_col], ascending=True)
     y_train_s = X_train_s['ploss'].values
+    X_train_m = X_train_m[['dist','freq']]
     X_val_s['ploss'] = y_val_s
     X_val_s = X_val_s.sort_values(by=[sorting_col], ascending=True)
     y_val_s = X_val_s['ploss'].values
+    X_val_s = X_val_s[['dist','freq']]
 
     X_train_m = np.array(X_train_m)
     X_val_m = np.array(X_val_m)

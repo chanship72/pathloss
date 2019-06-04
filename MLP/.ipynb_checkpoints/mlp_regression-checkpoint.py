@@ -63,23 +63,27 @@ def mlp_train_graph(model, X, Y, activation, loss):
     plt.ylabel("Path Loss(dB)")
     plt.show()
 
-def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, activation, loss):
+def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, type):
     cmap = plt.cm.coolwarm
     fig,ax = plt.subplots()
-    fig.set_figwidth(8)
+    fig.set_figwidth(16)
     fig.set_figheight(6)
     cmap_i = 0.0
-#     ax.set_xscale('log')
-    plt.scatter(Xscatter, Yscatter, s=1)        
+    plt.scatter(Xscatter, Yscatter, s=1)
     for idx in range(len(X)):
-        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))        
+        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))
         cmap_i += 0.8
-#     ax.set_xlabel("Distance(m) [$10^{x}]$",fontsize=12)
-    plt.xlabel("Distance(m) - log(x)")
+
+    if type == 'distance':
+        plt.xlabel("Distance(m) - log(x)")
+    elif type == 'height':
+        plt.xlabel("Distance(m)")
+    else:
+        plt.xlabel("Distance(m) - log(x)")
     plt.ylabel("Path Loss(dB)")
-    plt.legend(('3.4Ghz', '5.3Ghz', '6.4Ghz'))
+    plt.legend(('0.4Ghz', '1.399Ghz', '2.249Ghz'))
     plt.show()
-    
+
 def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     cmap = plt.cm.coolwarm
     fig,ax = plt.subplots()
@@ -100,8 +104,8 @@ def mlp_train_multi_graph_comb(model, X, Xscatter, Yscatter, activation, loss):
     
 def sci_notation(num):
     return "$10^{}$".format(num)
-def myticks(x,pos):
 
+def myticks(x,pos):
     if x == 0: return "$0$"
 
     exponent = int(x)
@@ -109,11 +113,10 @@ def myticks(x,pos):
 
     return r"${:2.2f} \times 10^{{ {:2d} }}$".format(coeff,exponent)
 
-
-def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
+def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3','6.4']):
     fig = plt.figure()
-    fig.set_figwidth(12)
-    fig.set_figheight(6)
+    fig.set_figwidth(15)
+    fig.set_figheight(8)
     
 #     X_0 = np.linspace(1, 3, num=len(Xscatter))
 #     X_0_scatter = X_0.T.reshape(-1,1)
@@ -122,7 +125,8 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
 
-    group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+#     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+    group = [freq+'Ghz' for freq in freqRange]
     for idx in range(len(X)):
         ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
         ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
@@ -159,8 +163,8 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
-
-    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'],fontsize=18)
+        
+    plt.yticks([np.log10(float(freqRange[0])*1000),np.log10(float(freqRange[1])*1000),np.log10(float(freqRange[2])*1000)],freqRange,fontsize=18)
     plt.show()
 
 

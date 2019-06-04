@@ -113,10 +113,10 @@ def myticks(x,pos):
 
     return r"${:2.2f} \times 10^{{ {:2d} }}$".format(coeff,exponent)
 
-def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
+def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3','6.4']):
     fig = plt.figure()
-    fig.set_figwidth(12)
-    fig.set_figheight(6)
+    fig.set_figwidth(15)
+    fig.set_figheight(8)
     
 #     X_0 = np.linspace(1, 3, num=len(Xscatter))
 #     X_0_scatter = X_0.T.reshape(-1,1)
@@ -125,7 +125,8 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 #     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
 
-    group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+#     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
+    group = [freq+'Ghz' for freq in freqRange]
     for idx in range(len(X)):
         ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
         ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
@@ -162,8 +163,8 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter):
 
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
-
-    plt.yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'],fontsize=18)
+        
+    plt.yticks([np.log10(float(freqRange[0])*1000),np.log10(float(freqRange[1])*1000),np.log10(float(freqRange[2])*1000)],freqRange,fontsize=18)
     plt.show()
 
 

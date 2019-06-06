@@ -4,7 +4,7 @@ import numpy as np
 import json
 import matplotlib.ticker as ticker
 import matplotlib.ticker as mtick
-
+import matplotlib.tri as mtri
 from math import floor, log10
 from matplotlib.ticker import FormatStrFormatter
 from MLP.utils import data_loader_pathloss
@@ -113,24 +113,44 @@ def myticks(x,pos):
 
     return r"${:2.2f} \times 10^{{ {:2d} }}$".format(coeff,exponent)
 
-def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3','6.4']):
+def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3','6.4'], sigma=False, colormap='binary'):
     fig = plt.figure()
     fig.set_figwidth(15)
     fig.set_figheight(8)
-    
+    min_dist = min(Xscatter[:,0])
+    max_dist = max(Xscatter[:,0])
+    min_freq = min(Xscatter[:,1])
+    max_freq = max(Xscatter[:,1])
+    dist = np.linspace(min_dist,max_dist, num=100)
+    freq = np.linspace(min_freq,max_freq, num=100)
+
+    dist, freq = np.meshgrid(dist, freq)
+    x, y = dist.flatten(), freq.flatten()
+    X_all = np.concatenate((x.reshape(-1,1),y.reshape(-1,1)), axis=1)
+    if sigma:
+        _, z = model.predict(X_all, return_std=True)
+    else:
+        z, _ = model.predict(X_all, return_std=True)
+#     print(z)
+#     print("dist:" + str(dist.shape))
+#     print("freq:" + str(freq.shape))
+#     print("X_all:" + str(X_all.shape))
 #     X_0 = np.linspace(1, 3, num=len(Xscatter))
 #     X_0_scatter = X_0.T.reshape(-1,1)
 #     X_1 = np.linspace(2, 3, num=len(Xscatter))
 #     X_1_scatter = X_1.T.reshape(-1,1)
 #     X_all = np.concatenate((X_0_scatter, np.array(Xscatter[:,1]).reshape(-1,1)), axis=1)
     ax = plt.axes(projection='3d')
-
+#     tri = mtri.Triangulation(dist, freq)
 #     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
     group = [freq+'Ghz' for freq in freqRange]
+
     for idx in range(len(X)):
         ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
         ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
-    ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary', alpha=0.5)
+#     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary', alpha=0.5)
+    ax.plot_trisurf(x, y, z ,cmap=colormap, alpha=0.5)
+    
 #     if flag == 'bh':
 #         ax.set_xlim(1.7, 2.8)
 #     else:
@@ -160,11 +180,11 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3'
     plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-
+    ax.set_zlim(-50, 200)
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
         
-    plt.yticks([np.log10(float(freqRange[0])*1000),np.log10(float(freqRange[1])*1000),np.log10(float(freqRange[2])*1000)],freqRange,fontsize=18)
+#     plt.yticks([np.log10(float(freqRange[0])*1000),np.log10(float(freqRange[1])*1000),np.log10(float(freqRange[2])*1000)],freqRange,fontsize=18)
     plt.show()
 
 

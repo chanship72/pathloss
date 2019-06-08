@@ -144,10 +144,10 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3'
 #     tri = mtri.Triangulation(dist, freq)
 #     group = ['3.4Ghz', '5.3Ghz', '6.4Ghz']
     group = [freq+'Ghz' for freq in freqRange]
-
-    for idx in range(len(X)):
-        ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
-        ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
+    if sigma == False:
+        for idx in range(len(X)):
+            ax.plot3D(X[idx][:,0], X[idx][:,1], model.predict(X[idx]),'gray')
+            ax.scatter(X[idx][:,0], X[idx][:,1], Y[idx], s=1, label=group[idx], zorder=-1, alpha=0.3);
 #     ax.plot_trisurf(np.array(Xscatter[:,0]), np.array(Xscatter[:,1]), model.predict(Xscatter),cmap='binary', alpha=0.5)
     ax.plot_trisurf(x, y, z ,cmap=colormap, alpha=0.5)
     
@@ -180,7 +180,8 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3'
     plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
-    ax.set_zlim(-50, 200)
+    if sigma == False:
+        ax.set_zlim(-50, 200)
 #     ax.set_xticks([1.6,2.0,2.9],[sci_notation(1),sci_notation(2),sci_notation(3)])
 #     ax.set_yticks([np.log10(3400),np.log10(5300),np.log10(6400)],['3.4','5.3','6.4'])
         

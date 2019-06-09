@@ -130,7 +130,7 @@ def mlp_train_multi_3dgraph_comb(model, X, Y, Xscatter, freqRange = ['3.4','5.3'
     if sigma:
         _, z = model.predict(X_all, return_std=True)
     else:
-        z, _ = model.predict(X_all, return_std=True)
+        z = model.predict(X_all)
 #     print(z)
 #     print("dist:" + str(dist.shape))
 #     print("freq:" + str(freq.shape))

@@ -49,7 +49,7 @@ print("--------------------------------------------------")
 
 # addData.to_csv("/Users/peter.park/workspace/proj_pathloss/EquationModeling/data/adddata.csv")
 
-X = np.array(addData[['logDistance', 'logFrequency', 'logHeightB', 'logHeightM', 'logHeightTratio', 'logAntennaMulLogDistance']])
+X = np.array(addData[['logDistance', 'logFrequency', 'logHeightB', 'logHeightM', 'logHeightTratio']])
 Y = np.array(addData[['pathloss']])
 
 kf = KFold(n_splits=5,shuffle=True)

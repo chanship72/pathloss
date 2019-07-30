@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import Normalizer
 
 # from equationmodel_ann import ann_learning
@@ -22,18 +23,19 @@ def ADD_data_loader(fileNameDic):
         totalCount+=df.size
         print("{}: distance filtering(before):{}".format(fName,df.shape))
         if "iksan" in fName:
-            df = filteringDF(df, 'distance', [1, 3])
+            df = filteringDF(df, 'distance', [1, 3.0])
         if "nonsan" in fName:
-            df = filteringDF(df, 'distance', [1, 3])
+            df = filteringDF(df, 'distance', [1, 3.0])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1, 3])
+            df = filteringDF(df, 'distance', [1, 3.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features
         for (label, value) in constTuple:
             df = addFeatureWithConst(df, value, label)
         combinedDataList.append(df)
-    combinedDataFrame = pd.concat(combinedDataList, keys=columnLabel, sort=True)
+    combinedDataFrame = pd.concat(combinedDataList, axis=0, keys=columnLabel, sort=False)
+    print(combinedDataFrame.head())
     print("Combined data set:", combinedDataFrame.shape)
     
     # filtering moving data
@@ -43,6 +45,9 @@ def ADD_data_loader(fileNameDic):
     
     # term creation
     print("Dataframe before add new terms:",combinedDataFrame.shape)
+#     # distance conversion: distance(KM)-> distance(M)
+#     combinedDataFrame['distance'] = convertKM(combinedDataFrame, ['distance'])
+    # free pathloss: distance(m), frequency(mhz)
     combinedDataFrame['freePathloss'] = getFreeSpacePathLoss(combinedDataFrame['distance'], combinedDataFrame['frequency'])
     # distance conversion: distance(KM)-> log10(distance)
     combinedDataFrame['logDistance'] = convertlogarithm(combinedDataFrame, ['distance'])
@@ -99,8 +104,13 @@ def convertlogarithm(dataFrame, targetColumn):
     return dataFrame[targetColumn].apply(np.log10, axis = 1)
 
 def getFreeSpacePathLoss(distance, frequency):
-    return 20*np.log10(distance)+20*np.log10(frequency) + 32.45
+    return 20*np.log10(distance)+20*np.log10(frequency) + 32.45 #- 27.55(M)
 
+def mlp_prediction_error(model, X, Y):
+    X_predictions = model.predict(X)
+    rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))
+    
+    return rmse
 def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
@@ -128,32 +138,40 @@ def samplingData(df, percentage):
 
     return dfSample
 
-def normalizeData(df, scaler = 'standard', auto = True):
+def normalizeData(df, scaler = 'standard'):
+    # name: Normalize Data
+    # author: cspark 
+    # @param df: dataframe
+    # @param scaler = standard, minmax, manual
+    # @return scaled dataframe
+    # @return scaler class (for inverseTransformation)
+    
+#            logDistance  logFrequency  logHeightB  logHeightM  logExtendedHeightTratio  logHeightTratio  logAntennaMulLogDistance  pathloss
+# count     79125.00      79125.00    79125.00    79125.00                 79125.00         79125.00                  79125.00  79125.00
+# mean          0.31          3.03        1.05        0.30                    -0.40            -0.32                      0.32    127.47
+    
     print("normalization distribution(before):\n{}".format(df.describe()))
     scaledData = None
-    if auto:
-        dataArray = np.array(df)
+    dataArray = np.array(df)
 
-        if scaler == 'standard':
-            scaler = StandardScaler()
-        elif scaler == 'norm-l1':
-            scaler = Normalizer(norm='l1')
-        elif scaler == 'norm-l2':
-            scaler = Normalizer(norm='l1')
-        else:
-            scaler = StandardScaler()
+    if scaler == 'standard':
+        scaler = StandardScaler()
         scaledData = scaler.fit_transform(dataArray)
-
-    else:
+    elif scaler == 'minmax':
+        scaler = MinMaxScaler()
+        scaledData = scaler.fit_transform(dataArray)
+    elif scaler == 'manual':
         # manually
-        df.loc[:,'logFrequency'] *= 0.1
-        df.loc[:,'logHeightB'] *= 0.1
+        if 'logFrequency' in df.columns:
+            df.loc[:,'logFrequency'] *= 0.1
+        if 'logHeightB' in df.columns:
+            df.loc[:,'logHeightB'] *= 0.1
         scaledData = np.array(df)
-    
+
     dfNormalized = pd.DataFrame(scaledData, columns=df.columns)
     print("normalization distribution(after):\n{}".format(dfNormalized.describe()))
     
-    return scaledData
+    return scaledData, scaler
 
 def makeXforGraphWithGroupingFrequency(X, Y, excludedCols = ['logHeightB', 'logHeightM', 'logHeightTratio']):
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
@@ -173,15 +191,16 @@ def makeXforGraphWithGroupingFrequency(X, Y, excludedCols = ['logHeightB', 'logH
         
     return [convertedX, convertedY]
 
-def makeXforGraph(X, Y, targetCols = ['logDistance', 'logFrequency']):
+def makeXforGraph(X, Y, removeCols = ['logDistance', 'logFrequency']):
 #     print("X shape:{}, Y shape:{}".format(X.shape, Y.shape))
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
 #     print("tmpCombined(before):{}".format(tmpCombined.shape))
 #     print("tmpCombined\n",tmpCombined.head())
     excludedCols = list(tmpCombined.columns.values)
 #     print(excludedCols)
-    for col in targetCols:
-        excludedCols.remove(col)
+    for col in removeCols:
+        if col in excludedCols:
+            excludedCols.remove(col)
 #     print(excludedCols)
     
     meanDF = tmpCombined.mean(axis=0)
@@ -219,14 +238,17 @@ def train_2d_graph(model, X, Y, targetColX, xCategory = ('0.4Ghz', '1.399Ghz', '
     cmap_i = 0.0
 
     for idx in range(len(X)):        
-        for col in targetColX:        
-            minX = X[idx][col].min()
-            maxX = X[idx][col].max()
-            linX = np.linspace(minX, maxX, num=len(np.array(X[idx])))
-            print("For '{}' column, min value:{:6.2f}, max value:{:6.2f}".format(col, minX, maxX))
+        minXlogD = X[idx]['logDistance'].min()
+        minXlogHB = X[idx].loc[X[idx]['logDistance'] == minXlogD]['logHeightB']
+        maxXlogD = X[idx]['logDistance'].max()
+        maxXlogHB = X[idx].loc[X[idx]['logDistance'] == maxXlogD]['logHeightB']
 
-            X[idx][col] = linX
-        
+        linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
+        # minMaxScale for log_hb * log_d
+        linXlogAD = np.multiply(linXlogD, np.array(X[idx]['logHeightB']))
+        # set input as random points of (1 + log_hb)log_d
+        X[idx]['logDistance'] = linXlogD
+        X[idx]['logAntennaMulLogDistance'] = linXlogAD
         elementX = np.array(X[idx])
         elementY = np.array(Y[idx])
 

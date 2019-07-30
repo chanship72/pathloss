@@ -61,7 +61,7 @@ def gp_regression(X, Y):
 #                                 length_scale_bounds=(0.1, 10.0),
 #                                 periodicity_bounds=(1.0, 10.0))\
 #         + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
-    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.0)
+    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.0, normalize_y=True)
     # Fit to data using Maximum Likelihood Estimation of the parameters
     gp_model.fit(X, Y)
     

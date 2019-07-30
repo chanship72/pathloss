@@ -10,6 +10,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn import linear_model
 from scipy import stats
 
+from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_squared_log_error
@@ -27,9 +28,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
-from sklearn.neural_network import MLPRegressor
-
-def ann_mlp_regression(X, Y, hidden_layer, activation, optimizer, alpha = 0.0001, learning_init=0.01):
+def ann_mlp_regression(X, Y, hidden_layer, activation, optimizer, alpha = 0.0, learning_init=0.001):
 
     """
     mlp = MLPRegressor(hidden_layer_sizes=(1000,),
@@ -46,16 +45,22 @@ def ann_mlp_regression(X, Y, hidden_layer, activation, optimizer, alpha = 0.0001
                                            activation=activation,
                                            solver=optimizer,
                                            learning_rate='constant',
-                                           max_iter=1000,
+                                           max_iter=2000,
                                            learning_rate_init=learning_init,
                                            alpha=alpha,
-                                           tol = 1e-4,
+                                           tol = 1e-6,
                                            verbose=False)
-    mlp.fit(X,Y)
-    print("loss:", mlp.loss_)
+    mlp.fit(X, Y)
     return mlp
 
-
+def errorDist(yhat, y):
+    error = yhat - y
+    plt.hist(error, bins = 25)
+    plt.xlabel("Prediction Error [dB]")
+    _ = plt.ylabel("Count")
+    plt.show()
+    df_error = pd.DataFrame({'Error(Noise) Distribution': error})
+    print(df_error.describe())
 
 def ann_linear_compare_graph(ANNmodel, LinearModel, X, Y, xCategory = ('0.4Ghz ANN', '0.4Ghz Linear', '1.399Ghz ANN', '1.399Ghz Linear', '2.249Ghz ANN', '2.249Ghz Linear')):
     #   X: array of distance list
@@ -71,27 +76,23 @@ def ann_linear_compare_graph(ANNmodel, LinearModel, X, Y, xCategory = ('0.4Ghz A
     cmap_i = 0.0
     for idx in range(len(X)):
         # minMaxScale for log distance(log_d)
-        minXlogD = min(np.array(X[idx])[:,0])
-        maxXlogD = max(np.array(X[idx])[:,0])
-        linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
+        minXlogD = X[idx]['logDistance'].min()
+        minXlogHB = X[idx].loc[X[idx]['logDistance'] == minXlogD]['logHeightB']
+        maxXlogD = X[idx]['logDistance'].max()
+        maxXlogHB = X[idx].loc[X[idx]['logDistance'] == maxXlogD]['logHeightB']
 
+        linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
         # minMaxScale for log_hb * log_d
-        minXlogAD = min(np.array(X[idx])[:,5])
-        maxXlogAD = max(np.array(X[idx])[:,5])
-        linXlogAD = np.linspace(minXlogAD, maxXlogAD, num=len(np.array(X[idx])))
-    
+        linXlogAD = np.multiply(linXlogD, np.array(X[idx]['logHeightB']))
         # set input as random points of (1 + log_hb)log_d
         X[idx]['logDistance'] = linXlogD
         X[idx]['logAntennaMulLogDistance'] = linXlogAD
         elementX = np.array(X[idx])
         elementY = np.array(Y[idx])
 
-#         print(elementX.shape)
-#         print(elementY.shape)
-
         ANNPred = ANNmodel.predict(elementX)
         LinearPred = LinearModel.predict(elementX)
-    
+        
         #plt.scatter(originX, elementY, s=1)
         plt.plot(elementX[:,0], ANNPred, color=cmap(cmap_i))
         plt.plot(elementX[:,0], LinearPred, color=cmap(cmap_i), linestyle='dashed')
@@ -107,6 +108,15 @@ def prediction_rmse_error(pred, Y):
 
     return rmse
 
+def mlp_train_graph(model, X, Y, activation, loss):
+    plt.figure(figsize=(15, 6))
+    plt.scatter(X[:,0].reshape(-1,1), Y, s=1)
+    X.sort(axis=0)
+    plt.plot(X[:,0].reshape(-1,1), model.predict(X), color="red")
+    plt.xlabel("Distance(m) - log(x)")
+    plt.ylabel("Path Loss(dB)")
+    plt.show()
+    
 def polynomialRegression():
     i = 1
     for X_train,y_train,X_test,y_test, trainError, testError in dataSet:

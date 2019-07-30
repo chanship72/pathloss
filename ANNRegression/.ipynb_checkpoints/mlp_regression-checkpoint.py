@@ -7,7 +7,7 @@ import matplotlib.ticker as mtick
 import matplotlib.tri as mtri
 from math import floor, log10
 from matplotlib.ticker import FormatStrFormatter
-from MLP.utils import data_loader_pathloss
+from utils import data_loader_pathloss
 from matplotlib.lines import Line2D
 from sklearn.neural_network import MLPRegressor
 

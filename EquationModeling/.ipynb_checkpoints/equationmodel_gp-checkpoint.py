@@ -46,24 +46,23 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 from sklearn.neural_network import MLPRegressor
 
-def gp_regression(X, Y):
+def gp_regression(kernel='RBF'):
 
     # Instantiate a Gaussian Process model
     # kernel = C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
-    # kernel = 1.0 * RBF(length_scale=100.0, length_scale_bounds=(1e-2, 1e3)) \
-    #    + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
-    # gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=9)
-#     kernel = 1.0 * RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e3)) \
-#         + WhiteKernel(noise_level=1e-5, noise_level_bounds=(1e-10, 1e+1))
-    kernel = 1.0 * RationalQuadratic(length_scale=1.0, alpha=0.1)\
+    if kernel == 'RBF':
+        kernel = 1.0 * RBF(length_scale=100.0, length_scale_bounds=(1e-2, 1e3)) \
+           + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
+    elif kernel == 'RQ':
+        kernel = 1.0 * RationalQuadratic(length_scale=1.0, alpha=0.1)\
         + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
-#     kernel = 1.0 * ExpSineSquared(length_scale=1.0, periodicity=3.0,
-#                                 length_scale_bounds=(0.1, 10.0),
-#                                 periodicity_bounds=(1.0, 10.0))\
-#         + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
-    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.0, normalize_y=True)
-    # Fit to data using Maximum Likelihood Estimation of the parameters
-    gp_model.fit(X, Y)
+    elif kernel == 'ESS':
+        kernel = 1.0 * ExpSineSquared(length_scale=1.0, periodicity=3.0,
+                                length_scale_bounds=(0.1, 10.0),
+                                periodicity_bounds=(1.0, 10.0))\
+        + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
+
+    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.001, normalize_y=True)
     
     return gp_model
 

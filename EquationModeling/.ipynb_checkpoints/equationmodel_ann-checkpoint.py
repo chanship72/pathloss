@@ -28,7 +28,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
-def ann_mlp_regression(X, Y, hidden_layer, activation, optimizer, alpha = 0.0, learning_init=0.001):
+def ann_mlp_regression(hidden_layer, activation, optimizer, alpha = 0.0, learning_init=0.001):
 
     """
     mlp = MLPRegressor(hidden_layer_sizes=(1000,),
@@ -50,7 +50,6 @@ def ann_mlp_regression(X, Y, hidden_layer, activation, optimizer, alpha = 0.0, l
                                            alpha=alpha,
                                            tol = 1e-6,
                                            verbose=False)
-    mlp.fit(X, Y)
     return mlp
 
 def errorDist(yhat, y):
@@ -62,6 +61,46 @@ def errorDist(yhat, y):
     df_error = pd.DataFrame({'Error(Noise) Distribution': error})
     print(df_error.describe())
 
+def ann_linear_compare_graph(ANNmodel, LinearModel, X, Y, xCategory = ('0.4Ghz ANN', '0.4Ghz Linear', '1.399Ghz ANN', '1.399Ghz Linear', '2.249Ghz ANN', '2.249Ghz Linear')):
+    #   X: array of distance list
+    #   Y: array of pathloss list
+    #   xCategory: title of each X set
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+    
+    # print("X:",X)
+    # print("Y:",Y)
+    cmap_i = 0.0
+    for idx in range(len(X)):
+        # minMaxScale for log distance(log_d)
+        minXlogD = X[idx]['logDistance'].min()
+        minXlogHB = X[idx].loc[X[idx]['logDistance'] == minXlogD]['logHeightB']
+        maxXlogD = X[idx]['logDistance'].max()
+        maxXlogHB = X[idx].loc[X[idx]['logDistance'] == maxXlogD]['logHeightB']
+
+        linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
+        # minMaxScale for log_hb * log_d
+        linXlogAD = np.multiply(linXlogD, np.array(X[idx]['logHeightB']))
+        # set input as random points of (1 + log_hb)log_d
+        X[idx]['logDistance'] = linXlogD
+        X[idx]['logAntennaMulLogDistance'] = linXlogAD
+        elementX = np.array(X[idx])
+        elementY = np.array(Y[idx])
+
+        ANNPred = ANNmodel.predict(elementX)
+        LinearPred = LinearModel.predict(elementX)
+        
+        #plt.scatter(originX, elementY, s=1)
+        plt.plot(elementX[:,0], ANNPred, color=cmap(cmap_i))
+        plt.plot(elementX[:,0], LinearPred, color=cmap(cmap_i), linestyle='dashed')
+        cmap_i += 0.8
+
+    plt.xlabel("log distance(KM)")
+    plt.ylabel("Path Loss(dB)")
+    plt.legend(xCategory)
+    plt.show()
     
 def prediction_rmse_error(pred, Y):
     rmse = np.sqrt(np.mean(np.power(Y - pred, 2)))

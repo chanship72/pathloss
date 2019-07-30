@@ -173,6 +173,17 @@ def normalizeData(df, scaler = 'standard'):
     
     return scaledData, scaler
 
+def makeXforGraphWithGroupingSeason(X, Y):
+    tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
+
+    convertedX, convertedY = [], []
+    groupDF = {k: v for k, v in tmpCombined.groupby('season')}
+    for season, df in groupDF.items():
+        convertedX.append(df[X.columns])
+        convertedY.append(df[Y.columns])
+        
+    return [convertedX, convertedY]
+
 def makeXforGraphWithGroupingFrequency(X, Y, excludedCols = ['logHeightB', 'logHeightM', 'logHeightTratio']):
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
 
@@ -192,26 +203,16 @@ def makeXforGraphWithGroupingFrequency(X, Y, excludedCols = ['logHeightB', 'logH
     return [convertedX, convertedY]
 
 def makeXforGraph(X, Y, removeCols = ['logDistance', 'logFrequency']):
-#     print("X shape:{}, Y shape:{}".format(X.shape, Y.shape))
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
-#     print("tmpCombined(before):{}".format(tmpCombined.shape))
-#     print("tmpCombined\n",tmpCombined.head())
     excludedCols = list(tmpCombined.columns.values)
-#     print(excludedCols)
     for col in removeCols:
         if col in excludedCols:
             excludedCols.remove(col)
-#     print(excludedCols)
     
     meanDF = tmpCombined.mean(axis=0)
-#     print("meanDF:\n",meanDF)
     tmpDF = tmpCombined
-#     print("excludedCols:{}".format(excludedCols))
     for col in excludedCols:
         tmpDF = fillColwithConstant(tmpDF, col, meanDF[col])
-        
-#     print("tmpCombined(after):{}".format(tmpDF.shape))
-#     print(tmpDF.head())
     
     return [tmpDF[X.columns], tmpDF[Y.columns]]
 
@@ -223,7 +224,38 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, X, Y, targetColX, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+def train_2d_graph(model, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+    #   @param X: list of dataframe [df1, df2, ...] Grouped by category
+    #   @param Y: list of dataframe [df1, df2, ...]
+    #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
+    #   @param xCategory: xlabel
+
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+    cmap = plt.cm.coolwarm
+    # print("X:",X)
+    # print("Y:",Y)
+    cmap_i = 0.0
+
+    for idx in range(len(X)):        
+        minX = X[idx][targetCol].min()
+        maxX = X[idx][targetCol].max()
+        linX = np.linspace(minX, maxX, num=len(np.array(X[idx])))
+        X[idx][targetCol] = linX
+        elementX = np.array(X[idx])
+        elementY = np.array(Y[idx])
+
+        pred = model.predict(elementX)        
+        plt.plot(elementX[:,0], pred, color=cmap(cmap_i))
+        cmap_i += 0.8
+
+    plt.xlabel(targetColLabel)
+    plt.ylabel("Path Loss(dB)")
+    plt.legend(xCategory)
+    plt.show()
+
+def train_2d_sigma_graph(model, X, Y, xCategory = ('Winter', 'Spring', 'Summer')):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
@@ -239,28 +271,22 @@ def train_2d_graph(model, X, Y, targetColX, xCategory = ('0.4Ghz', '1.399Ghz', '
 
     for idx in range(len(X)):        
         minXlogD = X[idx]['logDistance'].min()
-        minXlogHB = X[idx].loc[X[idx]['logDistance'] == minXlogD]['logHeightB']
         maxXlogD = X[idx]['logDistance'].max()
-        maxXlogHB = X[idx].loc[X[idx]['logDistance'] == maxXlogD]['logHeightB']
 
         linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
-        # minMaxScale for log_hb * log_d
-        linXlogAD = np.multiply(linXlogD, np.array(X[idx]['logHeightB']))
-        # set input as random points of (1 + log_hb)log_d
         X[idx]['logDistance'] = linXlogD
-        X[idx]['logAntennaMulLogDistance'] = linXlogAD
         elementX = np.array(X[idx])
         elementY = np.array(Y[idx])
 
-        pred = model.predict(elementX)        
-        plt.plot(elementX[:,0], pred, color=cmap(cmap_i))
+        pred, sigma = model.predict(elementX, return_std=True)        
+        plt.plot(elementX[:,0], sigma, color=cmap(cmap_i))
         cmap_i += 0.8
 
     plt.xlabel("log distance(KM)")
-    plt.ylabel("Path Loss(dB)")
+    plt.ylabel("Standard Deviation(dB)")
     plt.legend(xCategory)
-    plt.show()
-    
+    plt.show()    
+
 def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel = "Frequency(Ghz)", zlabel = "Path Loss(dB)"):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]

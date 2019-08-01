@@ -244,7 +244,6 @@ def train_2d_graph(model, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz'
         linX = np.linspace(minX, maxX, num=len(np.array(X[idx])))
         X[idx][targetCol] = linX
         elementX = np.array(X[idx])
-        elementY = np.array(Y[idx])
 
         pred = model.predict(elementX)        
         plt.plot(elementX[:,0], pred, color=cmap(cmap_i))

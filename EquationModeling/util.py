@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import cm
+
 import pickle
 
 from sklearn.model_selection import train_test_split
@@ -23,11 +25,11 @@ def ADD_data_loader(fileNameDic):
         totalCount+=df.size
         print("{}: distance filtering(before):{}".format(fName,df.shape))
         if "iksan" in fName:
-            df = filteringDF(df, 'distance', [1, 3.0])
+            df = filteringDF(df, 'distance', [1.0, 3.0])
         if "nonsan" in fName:
-            df = filteringDF(df, 'distance', [1, 3.0])
+            df = filteringDF(df, 'distance', [1.0, 2.3])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1, 3.0])
+            df = filteringDF(df, 'distance', [1.0, 4.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features
@@ -62,7 +64,7 @@ def ADD_data_loader(fileNameDic):
     # log antenna height B(transmitter): heightB(meter) -> log10(heightB)
     combinedDataFrame['logHeightB'] = convertlogarithm(combinedDataFrame, ['heightB'])
     # log antenna height M(receiver): heightM(meter) -> log10(heightM)
-    combinedDataFrame['logHeightM'] = convertlogarithm(combinedDataFrame, ['heightM'])
+    combinedDataFrame['logHeightTM'] = convertlogarithm(combinedDataFrame, ['heightTM'])
     # log antenna ration(heightTM/heightTB): heightTM/heightTB(meter) -> log10(heightTM/heightTB)
     combinedDataFrame['logHeightTratio'] = convertlogarithm(combinedDataFrame, ['heightTratio'])
     # log extended antenna ration(heightTM/heightTB): (height_TM + height_M) / (height_TB + height_B)(meter) -> log10((height_TM + height_M) / (height_TB + height_B))
@@ -138,7 +140,7 @@ def samplingData(df, percentage):
 
     return dfSample
 
-def normalizeData(df, scaler = 'standard'):
+def normalizeData(X, Y, scaler = 'standard'):
     # name: Normalize Data
     # author: cspark 
     # @param df: dataframe
@@ -150,10 +152,10 @@ def normalizeData(df, scaler = 'standard'):
 # count     79125.00      79125.00    79125.00    79125.00                 79125.00         79125.00                  79125.00  79125.00
 # mean          0.31          3.03        1.05        0.30                    -0.40            -0.32                      0.32    127.47
     
-    print("normalization distribution(before):\n{}".format(df.describe()))
+    print("normalization distribution(before):\n{}".format(X.describe()))
     scaledData = None
-    dataArray = np.array(df)
-
+    dataArray = np.array(X)
+    y = np.array(Y)
     if scaler == 'standard':
         scaler = StandardScaler()
         scaledData = scaler.fit_transform(dataArray)
@@ -162,16 +164,16 @@ def normalizeData(df, scaler = 'standard'):
         scaledData = scaler.fit_transform(dataArray)
     elif scaler == 'manual':
         # manually
-        if 'logFrequency' in df.columns:
-            df.loc[:,'logFrequency'] *= 0.1
-        if 'logHeightB' in df.columns:
-            df.loc[:,'logHeightB'] *= 0.1
-        scaledData = np.array(df)
+        if 'logFrequency' in X.columns:
+            X.loc[:,'logFrequency'] *= 0.1
+        if 'logHeightB' in X.columns:
+            X.loc[:,'logHeightB'] *= 0.1
+        scaledData = np.array(X)
 
-    dfNormalized = pd.DataFrame(scaledData, columns=df.columns)
+    dfNormalized = pd.DataFrame(scaledData, columns=X.columns)
     print("normalization distribution(after):\n{}".format(dfNormalized.describe()))
     
-    return scaledData, scaler
+    return dfNormalized, scaler
 
 def makeXforGraphWithGroupingSeason(X, Y):
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
@@ -184,7 +186,7 @@ def makeXforGraphWithGroupingSeason(X, Y):
         
     return [convertedX, convertedY]
 
-def makeXforGraphWithGroupingFrequency(X, Y, excludedCols = ['logHeightB', 'logHeightM', 'logHeightTratio']):
+def makeXforGraphWithGroupingFrequency(X, Y, excludedCols):
     tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
 
     convertedX, convertedY = [], []
@@ -224,7 +226,7 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+def train_2d_graph(model, normalizer, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
@@ -238,15 +240,31 @@ def train_2d_graph(model, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz'
     # print("Y:",Y)
     cmap_i = 0.0
 
-    for idx in range(len(X)):        
-        minX = X[idx][targetCol].min()
-        maxX = X[idx][targetCol].max()
-        linX = np.linspace(minX, maxX, num=len(np.array(X[idx])))
-        X[idx][targetCol] = linX
-        elementX = np.array(X[idx])
+    for idx in range(len(X)):
+        idxCol = X[idx].columns.get_loc(targetCol)
+        
+        minVal = X[idx][targetCol].min()
+        maxVal = X[idx][targetCol].max()
+        linX = np.linspace(minVal, maxVal, num=len(np.array(X[idx])))
+        
+        arr = np.array(X[idx])
+        arr[:,idxCol] = linX
+        
+#         origin_array = np.array(X[idx])
+#         normal_array = Xnormalizer.fit_transform(origin_array)
 
-        pred = model.predict(elementX)        
-        plt.plot(elementX[:,0], pred, color=cmap(cmap_i))
+#         minXNorm = normal_array[:,idxCol].min()
+#         maxXNorm = normal_array[:,idxCol].max()
+#         minXOri = (origin_array[:,idxCol].min())
+#         maxXOri = (origin_array[:,idxCol].max())
+#         linXnorm = np.linspace(minXNorm, maxXNorm, num=len(normal_array))               
+#         linXori = np.linspace(minXOri, maxXOri, num=len(origin_array))
+#         normal_array[:,idxCol] = linXnorm
+#         origin_array[:,idxCol] = linXori
+#         arr = normalizer.inverse_transform(arr)
+        pred = model.predict(arr)
+        
+        plt.plot(linX, pred, color=cmap(cmap_i))
         cmap_i += 0.8
 
     plt.xlabel(targetColLabel)
@@ -254,7 +272,7 @@ def train_2d_graph(model, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz'
     plt.legend(xCategory)
     plt.show()
 
-def train_2d_sigma_graph(model, X, Y, xCategory = ('Winter', 'Spring', 'Summer')):
+def train_2d_sigma_graph(model, X, Y, targetCol = 'logDistance', xCategory = ('Winter', 'Spring', 'Summer'), sigmaFlag = True):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
@@ -269,16 +287,20 @@ def train_2d_sigma_graph(model, X, Y, xCategory = ('Winter', 'Spring', 'Summer')
     cmap_i = 0.0
 
     for idx in range(len(X)):        
-        minXlogD = X[idx]['logDistance'].min()
-        maxXlogD = X[idx]['logDistance'].max()
+        minXlogD = X[idx][targetCol].min()
+        maxXlogD = X[idx][targetCol].max()
 
         linXlogD = np.linspace(minXlogD, maxXlogD, num=len(np.array(X[idx])))
-        X[idx]['logDistance'] = linXlogD
+        X[idx][targetCol] = linXlogD
         elementX = np.array(X[idx])
         elementY = np.array(Y[idx])
-
-        pred, sigma = model.predict(elementX, return_std=True)        
-        plt.plot(elementX[:,0], sigma, color=cmap(cmap_i))
+        
+        if sigmaFlag:
+            pred, sigma = model.predict(elementX, return_std=True)       
+            plt.plot(elementX[:,0], sigma, color=cmap(cmap_i))
+        else:
+            pred = model.predict(elementX)       
+            plt.plot(elementX[:,0], pred, color=cmap(cmap_i))            
         cmap_i += 0.8
 
     plt.xlabel("log distance(KM)")
@@ -295,9 +317,10 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
     fig = plt.figure()
     fig.set_figwidth(15)
     fig.set_figheight(8)
-       
+    
     totalPoint = 100
     linXList = []
+    
     for targetCol in targetColX:        
         minX = X[targetCol].min()
         maxX = X[targetCol].max()
@@ -329,14 +352,15 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
     z = z.reshape(x.shape)    
     ax = plt.axes(projection='3d')
 
-    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='binary', edgecolor='none')
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
     # ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
     # ax.contour3D(x, y, z, 50, cmap='binary')
-    
+
+
     ax.set_xlabel(xlabel,labelpad=18,fontsize=18)
     ax.set_ylabel(ylabel,labelpad=18,fontsize=18)
     ax.set_zlabel(zlabel,labelpad=10,fontsize=18)
-    ax.view_init(elev=20, azim=220)
+    ax.view_init(elev=30, azim=220)
 
     plt.minorticks_on()
     plt.rcParams['xtick.labelsize']=15
@@ -344,5 +368,7 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
     plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+
+
     plt.show()
     

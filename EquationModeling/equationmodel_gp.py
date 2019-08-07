@@ -62,7 +62,7 @@ def gp_regression(kernel='RBF'):
                                 periodicity_bounds=(1.0, 10.0))\
         + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
 
-    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.001, normalize_y=True)
+    gp_model = GaussianProcessRegressor(kernel=kernel, alpha=0.0, normalize_y=True)
     
     return gp_model
 

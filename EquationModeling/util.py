@@ -132,7 +132,7 @@ def samplingData(df, percentage, weight):
     print(df.describe())
 
     print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=True, random_state=1, weights=weight)
+    dfSample = df.sample(frac=percentage, replace=False, random_state=1, weights=weight)
     print("sampling shape(after):{}".format(dfSample.shape))
 
     print("data distribution(after)")
@@ -226,15 +226,15 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, normalizer, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+def train_2d_graph(model, linearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
     #   @param xCategory: xlabel
 
-    fig,ax = plt.subplots()
+    fig,ax = plt.subplots(3, 1)
     fig.set_figwidth(16)
-    fig.set_figheight(6)
+    fig.set_figheight(16)
     cmap = plt.cm.coolwarm
     # print("X:",X)
     # print("Y:",Y)
@@ -242,6 +242,8 @@ def train_2d_graph(model, normalizer, X, Y, targetCol, targetColLabel, xCategory
 
     for idx in range(len(X)):
         idxCol = X[idx].columns.get_loc(targetCol)
+        Xscatter = np.array(X[idx])[:,idxCol]
+        Yscatter = np.array(Y[idx])
         
         minVal = X[idx][targetCol].min()
         maxVal = X[idx][targetCol].max()
@@ -263,13 +265,19 @@ def train_2d_graph(model, normalizer, X, Y, targetCol, targetColLabel, xCategory
 #         origin_array[:,idxCol] = linXori
 #         arr = normalizer.inverse_transform(arr)
         pred = model.predict(arr)
-        
-        plt.plot(linX, pred, color=cmap(cmap_i))
+        ax[idx].set_title(xCategory[idx])
+        ax[idx].scatter(Xscatter, Yscatter, s=1, label='data') 
+        ax[idx].plot(linX, pred, color=cmap(cmap_i), label='ANN training')
+        if linearModel:
+            pred_linear = linearModel.predict(arr)
+            ax[idx].plot(linX, pred_linear, dashes=[6, 2], color=cmap(cmap_i), label='Linear Model')
         cmap_i += 0.8
 
-    plt.xlabel(targetColLabel)
-    plt.ylabel("Path Loss(dB)")
-    plt.legend(xCategory)
+        ax[idx].set_xlabel(targetColLabel)
+        ax[idx].set_ylabel("Path Loss(dB)")
+        ax[idx].legend()
+    plt.subplots_adjust(hspace=0.5)
+#     plt.legend(xCategory)
     plt.show()
 
 def train_2d_sigma_graph(model, X, Y, targetCol = 'logDistance', xCategory = ('Winter', 'Spring', 'Summer'), sigmaFlag = True):

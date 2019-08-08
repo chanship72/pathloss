@@ -197,7 +197,7 @@ def makeXforGraphWithGroupingFrequency(X, Y, excludedCols):
         for col in excludedCols:
             df = fillColwithConstant(df, col, meanDF[col])
         
-        print("Group-{:6.2f}Ghz Data shape:{}".format(df['logFrequency'].iloc[0],df.shape))
+#         print("Group-{:6.2f}Ghz Data shape:{}".format(df['logFrequency'].iloc[0],df.shape))
 
         convertedX.append(df[X.columns])
         convertedY.append(df[Y.columns])
@@ -226,7 +226,7 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, linearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
@@ -270,13 +270,17 @@ def train_2d_graph(model, linearModel, X, Y, targetCol, targetColLabel, xCategor
         ax[idx].plot(linX, pred, color=cmap(cmap_i), label='ANN training')
         if linearModel:
             pred_linear = linearModel.predict(arr)
-            ax[idx].plot(linX, pred_linear, dashes=[6, 2], color=cmap(cmap_i), label='Linear Model')
+            ax[idx].plot(linX, pred_linear, dashes=[6, 2], color=cmap(cmap_i), label='Multivariate Linear Model')
+        if originLinearModel:
+            pred_origin = originLinearModel.predict(arr[:,0].reshape(-1,1))
+            ax[idx].plot(linX, pred_origin, dashes=[2, 4], color=cmap(cmap_i), label='Original Linear Model')
+            
         cmap_i += 0.8
 
         ax[idx].set_xlabel(targetColLabel)
         ax[idx].set_ylabel("Path Loss(dB)")
         ax[idx].legend()
-    plt.subplots_adjust(hspace=0.5)
+    plt.subplots_adjust(hspace=0.4)
 #     plt.legend(xCategory)
     plt.show()
 

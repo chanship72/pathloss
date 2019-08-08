@@ -127,12 +127,12 @@ def splitDFwithCol(df, colName, valList):
         res.append(df[df[colName] == val])
     return res
 
-def samplingData(df, percentage):
+def samplingData(df, percentage, weight):
     print("data distribution(before)")
     print(df.describe())
 
     print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=False, random_state=1)
+    dfSample = df.sample(frac=percentage, replace=True, random_state=1, weights=weight)
     print("sampling shape(after):{}".format(dfSample.shape))
 
     print("data distribution(after)")

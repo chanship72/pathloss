@@ -7,7 +7,7 @@ import pickle
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
-
+from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import Normalizer
@@ -272,6 +272,10 @@ def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targe
             pred_linear = linearModel.predict(arr)
             ax[idx].plot(linX, pred_linear, dashes=[6, 2], color=cmap(cmap_i), label='Multivariate Linear Model')
         if originLinearModel:
+            originLinearModel = Ridge(alpha=0.0001)
+            originLinearModel.fit(Xscatter.reshape(-1,1), Yscatter)
+            print("original_L_pathloss = {:6.2f}log_d + {:6.2f}".format(originLinearModel.coef_[0],originLinearModel.intercept_))
+
             pred_origin = originLinearModel.predict(arr[:,0].reshape(-1,1))
             ax[idx].plot(linX, pred_origin, dashes=[2, 4], color=cmap(cmap_i), label='Original Linear Model')
             

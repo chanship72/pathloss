@@ -28,7 +28,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
-def ann_mlp_regression(hidden_layer, activation, optimizer, alpha = 0.0, learning_init=0.001):
+def ann_mlp_regression(hidden_layer, activation, optimizer, alpha = 0.01, learning_init=0.001):
 
     """
     mlp = MLPRegressor(hidden_layer_sizes=(1000,),

@@ -68,7 +68,7 @@ def ADD_data_loader(fileNameDic):
     # log antenna ration(heightTM/heightTB): heightTM/heightTB(meter) -> log10(heightTM/heightTB)
     combinedDataFrame['logHeightTratio'] = convertlogarithm(combinedDataFrame, ['heightTratio'])
     # log extended antenna ration(heightTM/heightTB): (height_TM + height_M) / (height_TB + height_B)(meter) -> log10((height_TM + height_M) / (height_TB + height_B))
-    combinedDataFrame['logExtendedHeightTratio'] = convertlogarithm(combinedDataFrame, ['extendedHeightTratio'])
+    combinedDataFrame['logExtendedHeightTratio'] = abs(convertlogarithm(combinedDataFrame, ['extendedHeightTratio']))
     # logh_b * logd term
     combinedDataFrame['logAntennaMulLogDistance'] = combinedDataFrame['logHeightB'] * combinedDataFrame['logDistance']
     # (log distance + log distance * log_b)
@@ -127,20 +127,23 @@ def splitDFwithCol(df, colName, valList):
         res.append(df[df[colName] == val])
     return res
 
-def samplingData(df, percentage, weight):
-    print("data distribution(before)")
-    print(df.describe())
+def samplingData(df, percentage, weight, prFlag = True):
+    if prFlag:
+        print("data distribution(before)")
+        print(df.describe())
 
-    print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=False, random_state=1, weights=weight)
-    print("sampling shape(after):{}".format(dfSample.shape))
+        print("sampling shape(before):{}".format(df.shape))
+    dfSample = df.sample(frac=percentage, replace=True, random_state=1, weights=weight)
 
-    print("data distribution(after)")
-    print(dfSample.describe())    
+    if prFlag:
+        print("sampling shape(after):{}".format(dfSample.shape))
+
+        print("data distribution(after)")
+        print(dfSample.describe())    
 
     return dfSample
 
-def normalizeData(X, Y, scaler = 'standard'):
+def normalizeData(X, Y, scaler = 'standard', prFlag=True):
     # name: Normalize Data
     # author: cspark 
     # @param df: dataframe
@@ -152,7 +155,8 @@ def normalizeData(X, Y, scaler = 'standard'):
 # count     79125.00      79125.00    79125.00    79125.00                 79125.00         79125.00                  79125.00  79125.00
 # mean          0.31          3.03        1.05        0.30                    -0.40            -0.32                      0.32    127.47
     
-    print("normalization distribution(before):\n{}".format(X.describe()))
+    if prFlag:
+        print("normalization distribution(before):\n{}".format(X.describe()))
     scaledData = None
     dataArray = np.array(X)
     y = np.array(Y)
@@ -171,7 +175,8 @@ def normalizeData(X, Y, scaler = 'standard'):
         scaledData = np.array(X)
 
     dfNormalized = pd.DataFrame(scaledData, columns=X.columns)
-    print("normalization distribution(after):\n{}".format(dfNormalized.describe()))
+    if prFlag:    
+        print("normalization distribution(after):\n{}".format(dfNormalized.describe()))
     
     return dfNormalized, scaler
 
@@ -193,7 +198,7 @@ def makeXforGraphWithGroupingFrequency(X, Y, excludedCols):
     groupDF = {k: v for k, v in tmpCombined.groupby('logFrequency')}
     for freq, df in groupDF.items():
         meanDF = df.mean(axis=0)
-        
+        print(meanDF)
         for col in excludedCols:
             df = fillColwithConstant(df, col, meanDF[col])
         
@@ -212,11 +217,24 @@ def makeXforGraph(X, Y, removeCols = ['logDistance', 'logFrequency']):
             excludedCols.remove(col)
     
     meanDF = tmpCombined.mean(axis=0)
+    print(meanDF)
     tmpDF = tmpCombined
     for col in excludedCols:
         tmpDF = fillColwithConstant(tmpDF, col, meanDF[col])
     
     return [tmpDF[X.columns], tmpDF[Y.columns]]
+
+def groupWithFrequency(X, Y, orderCol):
+    tmpCombined = pd.concat([X,Y.reindex(X.index)], axis=1)
+
+    convertedX, convertedY = [], []
+    groupDF = {k: v for k, v in tmpCombined.groupby('logFrequency')}
+    for freq, df in groupDF.items():
+        df = df.sort_values(by=[orderCol])
+        convertedX.append(df[X.columns])
+        convertedY.append(df[Y.columns])
+        
+    return [convertedX, convertedY]
 
 def inverseScale(data):
     scaler = StandardScaler()
@@ -226,18 +244,16 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz')):
+def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz'), convertFlag = True):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
     #   @param xCategory: xlabel
 
     fig,ax = plt.subplots(3, 1)
-    fig.set_figwidth(16)
+    fig.set_figwidth(8)
     fig.set_figheight(16)
     cmap = plt.cm.coolwarm
-    # print("X:",X)
-    # print("Y:",Y)
     cmap_i = 0.0
 
     for idx in range(len(X)):
@@ -250,20 +266,9 @@ def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targe
         linX = np.linspace(minVal, maxVal, num=len(np.array(X[idx])))
         
         arr = np.array(X[idx])
-        arr[:,idxCol] = linX
+        if convertFlag:
+            arr[:,idxCol] = linX
         
-#         origin_array = np.array(X[idx])
-#         normal_array = Xnormalizer.fit_transform(origin_array)
-
-#         minXNorm = normal_array[:,idxCol].min()
-#         maxXNorm = normal_array[:,idxCol].max()
-#         minXOri = (origin_array[:,idxCol].min())
-#         maxXOri = (origin_array[:,idxCol].max())
-#         linXnorm = np.linspace(minXNorm, maxXNorm, num=len(normal_array))               
-#         linXori = np.linspace(minXOri, maxXOri, num=len(origin_array))
-#         normal_array[:,idxCol] = linXnorm
-#         origin_array[:,idxCol] = linXori
-#         arr = normalizer.inverse_transform(arr)
         pred = model.predict(arr)
         ax[idx].set_title(xCategory[idx])
         ax[idx].scatter(Xscatter, Yscatter, s=1, label='data') 
@@ -324,6 +329,38 @@ def train_2d_sigma_graph(model, X, Y, targetCol = 'logDistance', xCategory = ('W
     plt.legend(xCategory)
     plt.show()    
 
+def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', sigmaFlag = True):
+    #   @param X: list of dataframe [df1, df2, ...] Grouped by category
+    #   @param Y: list of dataframe [df1, df2, ...]
+    #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
+    #   @param xCategory: xlabel
+
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+    cmap = plt.cm.coolwarm
+    # print("X:",X)
+    # print("Y:",Y)
+    cmap_i = 0.0
+
+    minXlogD = min(X)
+    maxXlogD = max(X)
+    linXlogD = np.linspace(minXlogD, maxXlogD, num=len(X)).reshape(-1,1)
+        
+    if sigmaFlag:
+        pred, sigma = model.predict(linXlogD, return_std=True)       
+        plt.plot(linXlogD, sigma, color=cmap(cmap_i))
+        plt.ylabel("Standard Deviation(dB)")
+    else:
+        pred = model.predict(linXlogD)       
+        plt.plot(linXlogD, pred, color=cmap(cmap_i))            
+        plt.ylabel("Path Loss(dB)")
+    cmap_i += 0.8
+
+    plt.xlabel("log distance(KM)")
+
+    plt.show()        
+    
 def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel = "Frequency(Ghz)", zlabel = "Path Loss(dB)"):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]

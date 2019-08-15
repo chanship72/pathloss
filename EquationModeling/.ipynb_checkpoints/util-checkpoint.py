@@ -329,7 +329,7 @@ def train_2d_sigma_graph(model, X, Y, targetCol = 'logDistance', xCategory = ('W
     plt.legend(xCategory)
     plt.show()    
 
-def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', sigmaFlag = True):
+def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', xLabel= "log distance(KM)", sigmaFlag = True):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
@@ -357,7 +357,7 @@ def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', sigmaFlag = T
         plt.ylabel("Path Loss(dB)")
     cmap_i += 0.8
 
-    plt.xlabel("log distance(KM)")
+    plt.xlabel(xLabel)
 
     plt.show()        
     

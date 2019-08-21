@@ -29,7 +29,7 @@ def ADD_data_loader(fileNameDic):
         if "nonsan" in fName:
             df = filteringDF(df, 'distance', [1.0, 2.3])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1.258925, 4.0])
+            df = filteringDF(df, 'distance', [1.0, 8.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features

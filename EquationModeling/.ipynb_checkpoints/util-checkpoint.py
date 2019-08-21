@@ -29,7 +29,7 @@ def ADD_data_loader(fileNameDic):
         if "nonsan" in fName:
             df = filteringDF(df, 'distance', [1.0, 2.3])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1.0, 4.0])
+            df = filteringDF(df, 'distance', [1.258925, 4.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features
@@ -127,13 +127,13 @@ def splitDFwithCol(df, colName, valList):
         res.append(df[df[colName] == val])
     return res
 
-def samplingData(df, percentage, weight, prFlag = True):
+def samplingData(df, percentage, weight, prFlag = True, randomState = 1):
     if prFlag:
         print("data distribution(before)")
         print(df.describe())
 
         print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=True, random_state=1, weights=weight)
+    dfSample = df.sample(frac=percentage, replace=True, random_state=randomState, weights=weight)
 
     if prFlag:
         print("sampling shape(after):{}".format(dfSample.shape))
@@ -343,8 +343,8 @@ def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', xLabel= "log 
     # print("Y:",Y)
     cmap_i = 0.0
 
-    minXlogD = min(X)
-    maxXlogD = max(X)
+    minXlogD = min(X)+0.001
+    maxXlogD = max(X)-0.001
     linXlogD = np.linspace(minXlogD, maxXlogD, num=len(X)).reshape(-1,1)
         
     if sigmaFlag:

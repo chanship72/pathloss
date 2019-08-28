@@ -133,7 +133,7 @@ def samplingData(df, percentage, weight, prFlag = True, randomState = 1):
         print(df.describe())
 
         print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=True, random_state=randomState, weights=weight)
+    dfSample = df.sample(frac=percentage, replace=False, random_state=randomState, weights=weight)
 
     if prFlag:
         print("sampling shape(after):{}".format(dfSample.shape))
@@ -424,4 +424,75 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
 
 
     plt.show()
+
+def train_3d_graph_origin(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel = "Frequency(Ghz)", zlabel = "Path Loss(dB)"):
+    #   @param X: list of dataframe [df1, df2, ...] Grouped by category
+    #   @param Y: list of dataframe [df1, df2, ...]
+    #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
+    #   @param xCategory: xlabel
+
+    fig = plt.figure()
+    fig.set_figwidth(15)
+    fig.set_figheight(8)
+    totalPoint = 100
+    linXList = []
+    scatter = np.array(X)
+    scatterX = np.array(X)[:,0]
+    scatterY = np.array(X)[:,1]
+    scatterZ = np.array(Y)
+    print("scatterX shape:",scatterX.shape)
+    print("scatterY shape:",scatterY.shape)
+    print("scatterZ shape:",scatterZ.shape)
     
+    for targetCol in targetColX:        
+        minX = X[targetCol].min()
+        maxX = X[targetCol].max()
+        linX = np.linspace(minX, maxX, num=totalPoint)
+#         print("For '{}'' column, min value:{:6.2f}, max value:{:6.2f}".format(targetCol, minX, maxX))
+
+        linXList.append(linX)
+
+    x = np.array(linXList[0])
+    y = np.array(linXList[1])
+    
+    x, y = np.meshgrid(x, y)
+    xFlat, yFlat = x.flatten(), y.flatten()
+    df = pd.DataFrame(xFlat, columns=['dummy'])
+    print(X.columns)
+    for c in X.columns:
+        if c == targetColX[0]:
+            df[c] = xFlat
+        elif c == targetColX[1]:
+            df[c] = yFlat
+        else:
+            val = X[c].iloc[0]
+            df = addFeatureWithConst(df, val, c)
+    df.drop('dummy', axis=1, inplace=True)
+    print("input data/feature distribution:\n",df.describe())
+    newX = np.array(df)
+
+    z = model.predict(newX)
+    z = z.reshape(x.shape) 
+    
+    ax = plt.axes(projection='3d')
+    
+
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='gray', edgecolor='none', alpha=0.5)
+    # ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
+    # ax.contour3D(x, y, z, 50, cmap='binary')
+    ax.scatter(scatterX, scatterY, scatterZ, s=1, alpha=0.3, zorder=-1)
+#     ax.plot3D(scatterX, scatterY, model.predict(scatter),'gray')
+
+    ax.set_xlabel(xlabel,labelpad=18,fontsize=18)
+    ax.set_ylabel(ylabel,labelpad=18,fontsize=18)
+    ax.set_zlabel(zlabel,labelpad=10,fontsize=18)
+    ax.view_init(elev=30, azim=220)
+
+    plt.minorticks_on()
+    plt.rcParams['xtick.labelsize']=15
+    # Customize the major grid
+    plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
+    # Customize the minor grid
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+
+    plt.show()

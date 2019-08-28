@@ -172,6 +172,9 @@ def normalizeData(X, Y, scaler = 'standard', prFlag=True):
             X.loc[:,'logFrequency'] *= 0.1
         if 'logHeightB' in X.columns:
             X.loc[:,'logHeightB'] *= 0.1
+        if 'logHeightTM' in X.columns:
+            X.loc[:,'logHeightTM'] *= 0.3
+            
         scaledData = np.array(X)
 
     dfNormalized = pd.DataFrame(scaledData, columns=X.columns)

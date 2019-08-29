@@ -29,7 +29,7 @@ def ADD_data_loader(fileNameDic):
         if "nonsan" in fName:
             df = filteringDF(df, 'distance', [1.0, 2.3])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1.0, 4.0])
+            df = filteringDF(df, 'distance', [1.0, 8.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features
@@ -133,7 +133,7 @@ def samplingData(df, percentage, weight, prFlag = True, randomState = 1):
         print(df.describe())
 
         print("sampling shape(before):{}".format(df.shape))
-    dfSample = df.sample(frac=percentage, replace=False, random_state=randomState, weights=weight)
+    dfSample = df.sample(frac=percentage, replace=True, random_state=randomState, weights=weight)
 
     if prFlag:
         print("sampling shape(after):{}".format(dfSample.shape))

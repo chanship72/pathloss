@@ -30,7 +30,7 @@ def ADD_data_loader(fileNameDic):
         if "nonsan" in fName:
             df = filteringDF(df, 'distance', [1.0, 2.3])
         if "paju" in fName:
-            df = filteringDF(df, 'distance', [1.0, 8.0])
+            df = filteringDF(df, 'distance', [1.0, 6.0])
         distanceFilteredTotalCount += df.size
         print("{}: distance filtering(after):{}".format(fName,df.shape))
         # adding constant features
@@ -50,8 +50,6 @@ def ADD_data_loader(fileNameDic):
     print("Dataframe before add new terms:",combinedDataFrame.shape)
 #     # distance conversion: distance(KM)-> distance(M)
 #     combinedDataFrame['distance'] = convertKM(combinedDataFrame, ['distance'])
-    # distance : KM -> M
-    combinedDataFrame['distance'] = convertKM(combinedDataFrame, ['distance'])
     # free pathloss: distance(m), frequency(mhz)
     combinedDataFrame['freePathloss'] = getFreeSpacePathLoss(combinedDataFrame['distance'], combinedDataFrame['frequency'])
     #     # distance conversion: distance(KM)-> log10(distance)
@@ -77,9 +75,10 @@ def ADD_data_loader(fileNameDic):
     combinedDataFrame['logAntennaMulLogDistance'] = combinedDataFrame['logHeightB'] * combinedDataFrame['logDistance']
     # (log distance + log distance * log_b)
     combinedDataFrame['combinedDistance'] = (combinedDataFrame['logDistance'] + combinedDataFrame['logHeightB'] * combinedDataFrame['logDistance'])
-
-    combinedDataFrame['diagnalDistance'] = math.hypot(combinedDataFrame['distance'], abs((combinedDataFrame['heightTM'] + combinedDataFrame['heightM']) - (combinedDataFrame['heightTB'] + combinedDataFrame['heightB'])))
-
+    combinedDataFrame['height'] = abs((combinedDataFrame['heightTM'] + combinedDataFrame['heightM']) - (combinedDataFrame['heightTB'] + combinedDataFrame['heightB']))
+    combinedDataFrame['diagnalDistance'] = np.sqrt(combinedDataFrame['distance']**2 + combinedDataFrame['height']**2)
+    # diagnal distance conversion: distance(KM)-> log10(distance)
+    combinedDataFrame['logDiagnalDistance'] = convertlogarithm(combinedDataFrame, ['diagnalDistance'])
     print("Dataframe after add constant feature:",combinedDataFrame.shape)
     
     return combinedDataFrame
@@ -134,19 +133,17 @@ def splitDFwithCol(df, colName, valList):
         res.append(df[df[colName] == val])
     return res
 
-def samplingData(df, percentage, weight, prFlag = True, randomState = 1):
-    if prFlag:
-        print("data distribution(before)")
-        print(df.describe())
+def samplingData(df, percentage, weight, randomState = 1):
+    print("data distribution(before)")
+    print(df.describe())
 
-        print("sampling shape(before):{}".format(df.shape))
+    print("sampling shape(before):{}".format(df.shape))
     dfSample = df.sample(frac=percentage, replace=True, random_state=randomState, weights=weight)
 
-    if prFlag:
-        print("sampling shape(after):{}".format(dfSample.shape))
+    print("sampling shape(after):{}".format(dfSample.shape))
 
-        print("data distribution(after)")
-        print(dfSample.describe())    
+    print("data distribution(after)")
+    print(dfSample.describe())    
 
     return dfSample
 
@@ -254,15 +251,15 @@ def inverseScale(data):
     
     return scaledData
 
-def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targetColLabel, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz'), convertFlag = True):
+def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targetColLabel, sigma = False, xCategory = ('0.4Ghz', '1.399Ghz', '2.249Ghz'), convertFlag = True):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
     #   @param targetColX: list of target column of dataframe ['logDistance', 'logAntennaMulLogDistance']
     #   @param xCategory: xlabel
 
     fig,ax = plt.subplots(3, 1)
-    fig.set_figwidth(8)
-    fig.set_figheight(16)
+    fig.set_figwidth(15)
+    fig.set_figheight(15)
     cmap = plt.cm.coolwarm
     cmap_i = 0.0
 
@@ -278,11 +275,17 @@ def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targe
         arr = np.array(X[idx])
         if convertFlag:
             arr[:,idxCol] = linX
-        
-        pred = model.predict(arr)
+
         ax[idx].set_title(xCategory[idx])
         ax[idx].scatter(Xscatter, Yscatter, s=1, label='data') 
-        ax[idx].plot(linX, pred, color=cmap(cmap_i), label='ANN training')
+
+        if sigma:
+            pred, std = model.predict(arr, return_std=True)
+            ax[idx].plot(linX, pred, color=cmap(cmap_i), label='ANN training')
+            ax[idx].fill_between(linX, pred - 3*std,pred + 3*std,alpha=0.1, color='k')
+        else:
+            pred = model.predict(arr)
+            ax[idx].plot(linX, pred, color=cmap(cmap_i), label='ANN training')
         if linearModel:
             pred_linear = linearModel.predict(arr)
             ax[idx].plot(linX, pred_linear, dashes=[6, 2], color=cmap(cmap_i), label='Multivariate Linear Model')
@@ -299,7 +302,7 @@ def train_2d_graph(model, linearModel, originLinearModel, X, Y, targetCol, targe
         ax[idx].set_xlabel(targetColLabel)
         ax[idx].set_ylabel("Path Loss(dB)")
         ax[idx].legend()
-    plt.subplots_adjust(hspace=0.4)
+#     plt.subplots_adjust(hspace=0.4)
 #     plt.legend(xCategory)
     plt.show()
 
@@ -353,17 +356,17 @@ def train_2d_sigma_graph_s(model, X, Y, targetCol = 'logDistance', xLabel= "log 
     # print("Y:",Y)
     cmap_i = 0.0
 
-    minXlogD = min(X)+0.001
-    maxXlogD = max(X)-0.001
-    linXlogD = np.linspace(minXlogD, maxXlogD, num=len(X)).reshape(-1,1)
+#     minXlogD = min(X)+0.001
+#     maxXlogD = max(X)-0.001
+#     linXlogD = np.linspace(minXlogD, maxXlogD, num=len(X)).reshape(-1,1)
         
     if sigmaFlag:
-        pred, sigma = model.predict(linXlogD, return_std=True)       
-        plt.plot(linXlogD, sigma, color=cmap(cmap_i))
+        pred, sigma = model.predict(X, return_std=True)       
+        plt.plot(X, sigma, color=cmap(cmap_i))
         plt.ylabel("Standard Deviation(dB)")
     else:
-        pred = model.predict(linXlogD)       
-        plt.plot(linXlogD, pred, color=cmap(cmap_i))            
+        pred = model.predict(X)       
+        plt.plot(X, pred, color=cmap(cmap_i))            
         plt.ylabel("Path Loss(dB)")
     cmap_i += 0.8
 
@@ -416,9 +419,8 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
     ax = plt.axes(projection='3d')
 
     ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
-    # ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
+    #ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
     # ax.contour3D(x, y, z, 50, cmap='binary')
-
 
     ax.set_xlabel(xlabel,labelpad=18,fontsize=18)
     ax.set_ylabel(ylabel,labelpad=18,fontsize=18)
@@ -432,9 +434,38 @@ def train_3d_graph(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel =
     # Customize the minor grid
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
 
+    plt.show()
+    
+    return x,y,z
+
+def model_3d_graph(x, y, z, org_x, org_y, org_z, xlabel = "Log distance(m)", ylabel = "Frequency(Ghz)", zlabel = "Path Loss(dB)"):
+    fig = plt.figure()
+    fig.set_figwidth(15)
+    fig.set_figheight(8)
+    
+    scatterX = org_x
+    scatterY = org_y
+    scatterZ = org_z
+    
+    ax = plt.axes(projection='3d')
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='gray', edgecolor='none', alpha=0.5)
+#     ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
+    ax.scatter(scatterX, scatterY, scatterZ, s=1, alpha=0.3, zorder=-1)
+
+    ax.set_xlabel(xlabel,labelpad=18,fontsize=18)
+    ax.set_ylabel(ylabel,labelpad=18,fontsize=18)
+    ax.set_zlabel(zlabel,labelpad=10,fontsize=18)
+    ax.view_init(elev=30, azim=220)
+
+    plt.minorticks_on()
+    plt.rcParams['xtick.labelsize']=15
+    # Customize the major grid
+    plt.grid(which='major', linestyle='-', linewidth='0.5', color='red')
+    # Customize the minor grid
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
 
     plt.show()
-
+    
 def train_3d_graph_origin(model, X, Y, targetColX, xlabel = "Log distance(m)", ylabel = "Frequency(Ghz)", zlabel = "Path Loss(dB)"):
     #   @param X: list of dataframe [df1, df2, ...] Grouped by category
     #   @param Y: list of dataframe [df1, df2, ...]
@@ -483,10 +514,10 @@ def train_3d_graph_origin(model, X, Y, targetColX, xlabel = "Log distance(m)", y
 
     z = model.predict(newX)
     z = z.reshape(x.shape) 
-    
+    print("x shape:",x.shape)
+    print("y shape:",y.shape)
+    print("z shape:",z.shape)    
     ax = plt.axes(projection='3d')
-    
-
     ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='gray', edgecolor='none', alpha=0.5)
     # ax.plot_trisurf(x, y, z ,cmap='binary', alpha=0.5)
     # ax.contour3D(x, y, z, 50, cmap='binary')

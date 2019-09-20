@@ -55,31 +55,63 @@ def mlp_prediction_error(model, X, Y):
     
     return rmse
 
-def mlp_train_graph(model, X, Y, activation, loss):
-    plt.figure(figsize=(8, 6))
-    plt.scatter(X[:,0].reshape(-1,1), Y, s=1)
-    plt.plot(X[:,0].reshape(-1,1), model.predict(X), color="red")
-    plt.xlabel("Distance(m) - log(x)")
+def mlp_multiple_models_train_graph(models, X, Y):
+    cmap = plt.cm.coolwarm
+    plt.figure(figsize=(16, 6))
+    plt.scatter(X[:,0], Y, s=1)
+    cmap_i = 0.0
+    
+    for model in models:
+        plt.plot(X[:,0], model.predict(X), color=cmap(cmap_i))
+        cmap_i += 0.8
+    plt.xlabel("Distance(km) - log(x)")
     plt.ylabel("Path Loss(dB)")
+    plt.legend(('Linear', 'ANN-MLP', 'Gaussian-Process'))
+    plt.show()
+    
+def ann_train_graph(X, Y, pred, Xscatter, Yscatter, var=False, std=0):
+    cmap = plt.cm.coolwarm
+    fig,ax = plt.subplots()
+    fig.set_figwidth(16)
+    fig.set_figheight(6)
+
+    plt.scatter(Xscatter, Yscatter, s=1)    
+
+    if var:
+        plt.fill_between(X[:,0], pred - std, pred + std, alpha=0.1, color='k')
+        plt.plot(X[:,0], pred, color='b')
+    else:
+        plt.plot(X[:,0], pred, color='b')
+
+    plt.xlabel("Distance(km) - log(x)")
+    plt.ylabel("Path Loss(dB)")
+    plt.legend(('ANN-Learning', 'data', 'confidence range-95.4%'))
     plt.show()
 
-def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, type):
+        
+def mlp_train_multi_graph(X, Y, pred, Xscatter, Yscatter, type, var=False, std=[]):
     cmap = plt.cm.coolwarm
     fig,ax = plt.subplots()
     fig.set_figwidth(16)
     fig.set_figheight(6)
     cmap_i = 0.0
-    plt.scatter(Xscatter, Yscatter, s=1)
+    plt.scatter(Xscatter, Yscatter, s=1)    
     for idx in range(len(X)):
-        plt.plot(X[idx], pred[idx], color=cmap(cmap_i))
+#         plt.scatter(X[idx][:,0], Y[idx], s=1, c=cmap(cmap_i))
+        if var:
+            plt.fill_between(X[idx][:,0], pred[idx] - std[idx], pred[idx] + std[idx], alpha=0.1, color='r')
+            plt.plot(X[idx][:,0], pred[idx], color=cmap(cmap_i))
+        else:
+            plt.plot(X[idx][:,0], pred[idx], color=cmap(cmap_i))
         cmap_i += 0.8
 
     if type == 'distance':
-        plt.xlabel("Distance(m) - log(x)")
+        plt.xlabel("Distance(km) - log(x)")
     elif type == 'height':
-        plt.xlabel("Distance(m)")
+        plt.xlabel("Distance(km)")
     else:
-        plt.xlabel("Distance(m) - log(x)")
+        plt.xlabel("Distance(km) - log(x)")
+    
     plt.ylabel("Path Loss(dB)")
     plt.legend(('0.4Ghz', '1.399Ghz', '2.249Ghz'))
     plt.show()

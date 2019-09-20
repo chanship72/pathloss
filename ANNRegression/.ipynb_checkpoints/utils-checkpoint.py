@@ -165,47 +165,52 @@ def data_loader_all_with_freq(dataset, freq, log = True):
     
     return X_train, y_train
 
-def data_loader_from_csv(dataset, freq, sorting_col = 'dist' , distThreshold=4, testRatio=0.2, log = True):
-    df = pd.read_csv(dataset, delimiter=',', names = ["type", "dist", "ploss", "height"])
+def divideType(dataset):
+    return dataset[dataset.type == 'm'], dataset[dataset.type == 's']
 
-    print("original: "+str(len(df)))
-    df = df[df['dist'] <= distThreshold]
-    print("filtered: "+str(len(df)))
+def logTransform(dataset, column):
+    dataset[column] = dataset[column].apply(np.log10, axis = 1)
+    return dataset
 
-    print("Covariance Matrix")
-    print(df.cov())
-    print("--------------------------------------------------")
-    
-#     df['height'] = df['height'] * 1000
-    df['dist'] = df['dist'] * 1000
-    df['freq'] = freq
+def data_loader_from_csv(dataset, freq, sorting_col = 'distance' , distThreshold=[0,6], testRatio=0.2, log = True):
+    addData = pd.read_csv(dataset, delimiter=',', names = ["type", "distance", "pathloss", "height"])
+
+    print("original: "+str(len(addData)))
+    addData = addData[addData['distance'] <= distThreshold[1]]
+    addData = addData[addData['distance'] >= distThreshold[0]]
+    print("filtered: "+str(len(addData)))
+
+    addData['freq'] = freq
     if log:
-        df['dist'] = df[['dist']].apply(np.log10, axis=1)
+#         addData['distance'] = addData[['distance']].apply(np.log10, axis=1)
+        addData = logTransform(addData, ['distance'])
+        
+#     print("Preprocessing <{n}>...Total {s}".format(n=dataset, s=len(df)))
+#     df_m = df[df.type == 'm']
+#     df_s = df[df.type == 's']
 
-    print("Preprocessing <{n}>...Total {s}".format(n=dataset, s=len(df)))
-    df_m = df[df.type == 'm']
-    df_s = df[df.type == 's']
+    addData_m, addData_s = divideType(addData)
+    
+    X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(addData_m[['distance','freq']],addData_m[['pathloss']], test_size=testRatio, shuffle=True)
+    X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(addData_s[['distance','freq']],addData_s[['pathloss']], test_size=testRatio, shuffle=True)
 
-    X_train_m, X_val_m, y_train_m, y_val_m = train_test_split(df_m[['dist','freq']],df_m[['ploss']], test_size=testRatio, shuffle=True)
-    X_train_s, X_val_s, y_train_s, y_val_s = train_test_split(df_s[['dist','freq']],df_s[['ploss']], test_size=testRatio, shuffle=True)
-
-    X_train_m['ploss'] = y_train_m
+    X_train_m['pathloss'] = y_train_m
     X_train_m = X_train_m.sort_values(by=[sorting_col], ascending=True)
-    y_train_m = X_train_m['ploss'].values
-    X_train_m = X_train_m[['dist','freq']]
-    X_val_m['ploss'] = y_val_m
+    y_train_m = X_train_m['pathloss'].values
+    X_train_m = X_train_m[['distance','freq']]
+    X_val_m['pathloss'] = y_val_m
     X_val_m = X_val_m.sort_values(by=[sorting_col], ascending=True)
-    y_val_m = X_val_m['ploss'].values
-    X_val_m = X_val_m[['dist','freq']]
+    y_val_m = X_val_m['pathloss'].values
+    X_val_m = X_val_m[['distance','freq']]
 
-    X_train_s['ploss'] = y_train_s
+    X_train_s['pathloss'] = y_train_s
     X_train_s = X_train_s.sort_values(by=[sorting_col], ascending=True)
-    y_train_s = X_train_s['ploss'].values
-    X_train_m = X_train_m[['dist','freq']]
-    X_val_s['ploss'] = y_val_s
+    y_train_s = X_train_s['pathloss'].values
+    X_train_m = X_train_m[['distance','freq']]
+    X_val_s['pathloss'] = y_val_s
     X_val_s = X_val_s.sort_values(by=[sorting_col], ascending=True)
-    y_val_s = X_val_s['ploss'].values
-    X_val_s = X_val_s[['dist','freq']]
+    y_val_s = X_val_s['pathloss'].values
+    X_val_s = X_val_s[['distance','freq']]
 
     X_train_m = np.array(X_train_m)
     X_val_m = np.array(X_val_m)
@@ -216,9 +221,8 @@ def data_loader_from_csv(dataset, freq, sorting_col = 'dist' , distThreshold=4, 
     y_train_s = np.array(y_train_s)
     y_val_s = np.array(y_val_s)
 
-    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_m),n_2=len(y_val_m),n=len(df_m), t='moving type'))
-    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_s),n_2=len(y_val_s),n=len(df_s), t='stationary type'))
-    print("===============================================================================")
+    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_m),n_2=len(y_val_m),n=len(addData_m), t='moving type'))
+    print("- {t}: total: {n} (training: {n_1}/validation: {n_2})".format(n_1=len(y_train_s),n_2=len(y_val_s),n=len(addData_s), t='stationary type'))
     return X_train_m, X_val_m, y_train_m, y_val_m, X_train_s, X_val_s, y_train_s, y_val_s
 
 # data_loader_from_csv('../data/PLdata_iksan_sm_400.csv', 400)

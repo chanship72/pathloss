@@ -5,12 +5,16 @@ import json
 import matplotlib.ticker as ticker
 import matplotlib.ticker as mtick
 import matplotlib.tri as mtri
+
 from math import floor, log10
 from matplotlib.ticker import FormatStrFormatter
 from utils import data_loader_pathloss
 from matplotlib.lines import Line2D
 from sklearn.neural_network import MLPRegressor
 
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
 def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.0, learning_init=0.001):
 
     """
@@ -39,6 +43,26 @@ def mlp_regression(X, Y, hidden_layer, activation, loss, alpha = 0.0, learning_i
 
 def mlp_prediction(model, X):
     return model.predict(X)
+
+def build_tf_ann_model(train_dataset):
+    model = keras.Sequential([
+        layers.Dense(64, activation=tf.nn.sigmoid, input_shape=[2]),
+        layers.Dense(64, activation=tf.nn.sigmoid),
+        layers.Dense(1)
+      ])
+
+    optimizer = tf.keras.optimizers.RMSprop(0.001)
+
+    model.compile(loss='mape',
+                optimizer=optimizer,
+                metrics=['mse', 'mae', 'mape'])
+    print(model.summary())
+    return model
+
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0: print('')
+        print('.', end='')
 
 def errorDist(yhat, y):
     error = yhat - y
@@ -76,7 +100,7 @@ def ann_train_graph(X, Y, pred, Xscatter, Yscatter, var=False, std=0):
     fig.set_figheight(6)
 
     plt.scatter(Xscatter, Yscatter, s=1)    
-
+    print(std)
     if var:
         plt.fill_between(X[:,0], pred - std, pred + std, alpha=0.1, color='k')
         plt.plot(X[:,0], pred, color='b')
@@ -85,7 +109,7 @@ def ann_train_graph(X, Y, pred, Xscatter, Yscatter, var=False, std=0):
 
     plt.xlabel("Distance(km) - log(x)")
     plt.ylabel("Path Loss(dB)")
-    plt.legend(('ANN-Learning', 'data', 'confidence range-95.4%'))
+    plt.legend(('ANN-Learning', 'data', 'confidence range-99.7%'))
     plt.show()
 
         

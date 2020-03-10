@@ -73,6 +73,9 @@ def errorDist(yhat, y):
     df_error = pd.DataFrame({'Error(Noise) Distribution': error})
     print(df_error.describe())
 
+def prediction_error(Y_hat, Y):
+    return np.sqrt(np.mean(np.power(Y_hat-Y,2)))
+
 def mlp_prediction_error(model, X, Y):
     X_predictions = model.predict(X)
     rmse = np.sqrt(np.mean(np.power(Y-X_predictions,2)))

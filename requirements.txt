@@ -4,6 +4,6 @@ numpy==1.18.2
 pandas==1.0.3
 scikit-learn==0.22.2.post1
 scipy==1.4.1
-tensorflow==2.1.0
+tensorflow==2.5.3
 tensorflow-estimator==2.1.0
 virtualenv==20.0.10

@@ -1,6 +1,6 @@
 matplotlib==3.2.0
 more-itertools==4.3.0
-numpy==1.18.2
+numpy==1.22.0
 pandas==1.0.3
 scikit-learn==0.22.2.post1
 scipy==1.4.1
